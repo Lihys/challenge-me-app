@@ -9,11 +9,11 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 
 @Composable
-fun ChallengePage(navController: NavController, challengeId: String?) {
+fun InviteCodeScreen(navController: NavController, challengeId: String?) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text("Challenge Screen")
+        Text("Invite Code Screen: $challengeId")
     }
 }

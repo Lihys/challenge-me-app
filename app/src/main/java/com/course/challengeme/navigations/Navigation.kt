@@ -1,4 +1,4 @@
-package com.course.challengeme
+package com.course.challengeme.navigations
 
 sealed class Navigation(val route: String) {
     object Launch : Navigation("launch")
