@@ -1,4 +1,4 @@
-package com.course.challengeme
+package com.course.challengeme.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,6 +30,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import com.course.challengeme.navigations.Navigation
 import androidx.compose.runtime.getValue
+import com.course.challengeme.R
 
 @Composable
 fun LaunchScreen(navController: NavController) {
