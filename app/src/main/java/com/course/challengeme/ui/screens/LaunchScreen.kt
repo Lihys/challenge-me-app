@@ -28,7 +28,10 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 import com.course.challengeme.R
 import com.course.challengeme.auth.FirebaseAuth
 import com.course.challengeme.navigations.Navigation
@@ -102,6 +105,20 @@ fun LaunchScreen(navController: NavController) {
             }
 
             Spacer(modifier = Modifier.height(32.dp))
+
         }
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // TEMPORARY — remove before submitting
+        TextButton(
+            onClick = {
+                navController.navigate(Navigation.Home.route) {
+                    popUpTo(Navigation.Launch.route) { inclusive = true }
+                }
+            }
+        ) {
+            Text("Skip to Home (dev)", color = AppBackground, fontSize = 13.sp)
+        }
+
     }
 }
