@@ -19,7 +19,16 @@ import com.course.challengeme.navigations.Navigation
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.ButtonDark
+
 import com.google.firebase.auth.FirebaseAuth
+import androidx.compose.ui.platform.LocalContext
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.GetCredentialResponse
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.firebase.auth.GoogleAuthProvider
+import kotlinx.coroutines.launch
 
 @Composable
 fun LogIn(navController: NavController) {
@@ -29,6 +38,47 @@ fun LogIn(navController: NavController) {
     var isLoading by remember { mutableStateOf(false) }
 
     val auth = FirebaseAuth.getInstance()
+
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    fun signInWithGoogle() {
+        coroutineScope.launch {
+            try {
+                val credentialManager = CredentialManager.create(context)
+
+                val googleIdOption = GetGoogleIdOption.Builder()
+                    .setFilterByAuthorizedAccounts(false)
+                    .setServerClientId(context.getString(R.string.default_web_client_id))
+                    .build()
+
+                val request = GetCredentialRequest.Builder()
+                    .addCredentialOption(googleIdOption)
+                    .build()
+
+                val result: GetCredentialResponse = credentialManager.getCredential(
+                    request = request,
+                    context = context
+                )
+
+                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(result.credential.data)
+                val firebaseCredential = GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
+
+                auth.signInWithCredential(firebaseCredential)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            navController.navigate(Navigation.Home.route) {
+                                popUpTo(Navigation.Login.route) { inclusive = true }
+                            }
+                        } else {
+                            errorMessage = task.exception?.localizedMessage ?: "Google sign-in failed"
+                        }
+                    }
+            } catch (e: Exception) {
+                errorMessage = e.localizedMessage ?: "Google sign-in failed"
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -120,7 +170,7 @@ fun LogIn(navController: NavController) {
         Spacer(modifier = Modifier.height(20.dp))
 
         OutlinedButton(
-            onClick = { /* to do fr*/ },
+            onClick = { signInWithGoogle() },
             shape = RoundedCornerShape(28.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -153,4 +203,6 @@ fun LogIn(navController: NavController) {
             }
         }
     }
+
 }
+
