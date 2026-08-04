@@ -2,10 +2,11 @@ package com.course.challengeme.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val AppBackground = Color(0xFFE1E0E6)
+val AppText = Color(0xFF100A10)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val ChallengeBgRed = Color(0xFF441917)
+val ChallengeBgMauve = Color(0xFFBE9F9D)
+val ChallengeBgTan = Color(0xFFCFAE80)
+
+val ButtonDark = Color(0xFF4A1410)
