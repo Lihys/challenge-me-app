@@ -12,7 +12,20 @@
           "package_name": "com.course.challengeme"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "34231508646-6a97bdd01kts5k25kjoqf5im2j06jvbm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.course.challengeme",
+            "certificate_hash": "fe37ee79ab15a2f8a907845bb30fe081e605f9ef"
+          }
+        },
+        {
+          "client_id": "34231508646-vpuph7etgio7dr24ek5m23kqa9kgiji5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBna56-wuRCCHNetRdRPk6jdRkwnWTSRjc"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "34231508646-vpuph7etgio7dr24ek5m23kqa9kgiji5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
