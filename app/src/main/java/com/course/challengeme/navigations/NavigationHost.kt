@@ -10,7 +10,7 @@ import com.course.challengeme.ChallengePage
 import com.course.challengeme.HomePage
 import com.course.challengeme.LeaderboardPage
 import com.course.challengeme.JoinViaCode
-import com.course.challengeme.ui.screens.LogIn
+import com.course.challengeme.ui.screens.LogInScreen
 import com.course.challengeme.MyAccount
 import com.course.challengeme.NewChallenge
 import com.course.challengeme.ui.screens.Register
@@ -20,7 +20,7 @@ import com.course.challengeme.InviteCodeScreen
 fun NavigationHost(navController: NavHostController = rememberNavController()) {
     NavHost(navController = navController, startDestination = Navigation.Launch.route) {
         composable(Navigation.Launch.route) { LaunchScreen(navController) }
-        composable(Navigation.Login.route) { LogIn(navController) }
+        composable(Navigation.Login.route) { LogInScreen(navController) }
         composable(Navigation.Register.route) { Register(navController) }
         composable(Navigation.Home.route) { HomePage(navController) }
         composable(Navigation.MyAccount.route) { MyAccount(navController) }
