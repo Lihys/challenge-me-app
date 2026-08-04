@@ -103,22 +103,22 @@ fun LaunchScreen(navController: NavController) {
                     tint = AppText
                 )
             }
-
+// TEMPORARY — remove before submitting
+            TextButton(
+                onClick = {
+                    navController.navigate(Navigation.Home.route) {
+                        popUpTo(Navigation.Launch.route) { inclusive = true }
+                    }
+                }
+            ) {
+                Text("Skip to Home (dev)", color = AppBackground, fontSize = 13.sp)
+            }
             Spacer(modifier = Modifier.height(32.dp))
 
         }
-        Spacer(modifier = Modifier.height(12.dp))
+        //Spacer(modifier = Modifier.height(12.dp))
 
-        // TEMPORARY — remove before submitting
-        TextButton(
-            onClick = {
-                navController.navigate(Navigation.Home.route) {
-                    popUpTo(Navigation.Launch.route) { inclusive = true }
-                }
-            }
-        ) {
-            Text("Skip to Home (dev)", color = AppBackground, fontSize = 13.sp)
-        }
+
 
     }
 }
