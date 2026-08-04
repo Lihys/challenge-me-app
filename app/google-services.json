@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "34231508646",
+    "project_id": "challengeme-2899b",
+    "storage_bucket": "challengeme-2899b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:34231508646:android:fb224c282cda84a7ac9e67",
+        "android_client_info": {
+          "package_name": "com.course.challengeme"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBna56-wuRCCHNetRdRPk6jdRkwnWTSRjc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
