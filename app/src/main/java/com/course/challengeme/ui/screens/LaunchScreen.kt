@@ -14,10 +14,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -25,21 +26,25 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
-import com.course.challengeme.navigations.Navigation
-import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import com.course.challengeme.R
+import com.course.challengeme.auth.FirebaseAuth
+import com.course.challengeme.navigations.Navigation
+import com.course.challengeme.ui.theme.AppBackground
+import com.course.challengeme.ui.theme.AppText
+import com.course.challengeme.ui.theme.BlueLauncherBg
+import com.course.challengeme.ui.theme.ButtonDark
 
 @Composable
 fun LaunchScreen(navController: NavController) {
-    val backgroundColor = Color(0xFF022A8B)
+    val authRepository = remember { FirebaseAuth() }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(backgroundColor)
+            .background(BlueLauncherBg)
     ) {
         Column(
             modifier = Modifier
@@ -52,7 +57,7 @@ fun LaunchScreen(navController: NavController) {
             // Challenge me text + animation
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(2.dp) // gap between them
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.launcher_logo),
@@ -74,13 +79,12 @@ fun LaunchScreen(navController: NavController) {
                 )
             }
 
-            Spacer(modifier = Modifier.weight(1f)) // so the button wil be at the bottom
+            Spacer(modifier = Modifier.weight(1f))
 
             IconButton(
                 onClick = {
-                    val isLoggedIn = FirebaseAuth.getInstance().currentUser != null
                     val destination =
-                        if (isLoggedIn) Navigation.Home.route else Navigation.Login.route
+                        if (authRepository.isLoggedIn) Navigation.Home.route else Navigation.Login.route
                     navController.navigate(destination) {
                         popUpTo(Navigation.Launch.route) { inclusive = true }
                     }
@@ -88,12 +92,12 @@ fun LaunchScreen(navController: NavController) {
                 modifier = Modifier
                     .size(64.dp)
                     .clip(CircleShape)
-                    .background(color = Color(0xFFF9F0E3))
+                    .background(color = AppBackground)
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowForward,
                     contentDescription = "Continue",
-                    tint = Color.Black
+                    tint = AppText
                 )
             }
 
@@ -101,5 +105,3 @@ fun LaunchScreen(navController: NavController) {
         }
     }
 }
-
-

@@ -10,3 +10,5 @@ val ChallengeBgMauve = Color(0xFFBE9F9D)
 val ChallengeBgTan = Color(0xFFCFAE80)
 
 val ButtonDark = Color(0xFF4A1410)
+
+val BlueLauncherBg = Color(0xFF022A8B)
