@@ -2,26 +2,28 @@ package com.course.challengeme.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.course.challengeme.auth.FirebaseAuth
 import com.course.challengeme.navigations.Navigation
+import com.course.challengeme.ui.components.TextField
+import com.course.challengeme.ui.components.PrimaryButton
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.ButtonDark
-import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
 @Composable
-fun Register(navController: NavController) {
+fun RegisterScreen(navController: NavController) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -29,7 +31,14 @@ fun Register(navController: NavController) {
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(false) }
 
-    val auth = FirebaseAuth.getInstance()
+    val authRepository = remember { FirebaseAuth() }
+    val coroutineScope = rememberCoroutineScope()
+
+    fun goHomeAndClearBackStack() {
+        navController.navigate(Navigation.Home.route) {
+            popUpTo(Navigation.Register.route) { inclusive = true }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -39,61 +48,16 @@ fun Register(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = "Create account",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = AppText
-        )
-
+        Text("Create account", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = AppText)
         Spacer(modifier = Modifier.height(32.dp))
 
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Name") },
-            singleLine = true,
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth()
-        )
-
+        TextField(value = name, onValueChange = { name = it }, label = "Name")
         Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth()
-        )
-
+        TextField(value = email, onValueChange = { email = it }, label = "Email", keyboardType = KeyboardType.Email)
         Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth()
-        )
-
+        TextField(value = password, onValueChange = { password = it }, label = "Password", isPassword = true, keyboardType = KeyboardType.Password)
         Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            label = { Text("Confirm password") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth()
-        )
+        TextField(value = confirmPassword, onValueChange = { confirmPassword = it }, label = "Confirm password", isPassword = true, keyboardType = KeyboardType.Password)
 
         errorMessage?.let {
             Spacer(modifier = Modifier.height(8.dp))
@@ -102,48 +66,30 @@ fun Register(navController: NavController) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Button(
+        PrimaryButton(
+            text = "Create Account",
+            isLoading = isLoading,
+            enabled = name.isNotBlank() && email.isNotBlank() && password.isNotBlank(),
             onClick = {
                 if (password != confirmPassword) {
                     errorMessage = "Passwords don't match"
-                    return@Button
+                    return@PrimaryButton
                 }
-                isLoading = true
-                errorMessage = null
-                auth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        isLoading = false
-                        if (task.isSuccessful) {
-                            navController.navigate(Navigation.Home.route) {
-                                popUpTo(Navigation.Register.route) { inclusive = true }
-                            }
-                        } else {
-                            errorMessage = task.exception?.localizedMessage ?: "Registration failed"
-                        }
-                    }
-            },
-            enabled = !isLoading && name.isNotBlank() && email.isNotBlank() && password.isNotBlank(),
-            shape = RoundedCornerShape(28.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = ButtonDark),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-        ) {
-            if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.size(20.dp), color = AppBackground)
-            } else {
-                Text("Create Account", fontSize = 16.sp)
+                coroutineScope.launch {
+                    isLoading = true
+                    errorMessage = null
+                    authRepository.register(email, password)
+                        .onSuccess { goHomeAndClearBackStack() }
+                        .onFailure { errorMessage = it.localizedMessage ?: "Registration failed" }
+                    isLoading = false
+                }
             }
-        }
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                "Already have an account? ",
-                color = AppText.copy(alpha = 0.7f),
-                fontSize = 14.sp
-            )
+            Text("Already have an account? ", color = AppText.copy(alpha = 0.7f), fontSize = 14.sp)
             TextButton(
                 onClick = {
                     navController.navigate(Navigation.Login.route) {
