@@ -7,7 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.course.challengeme.ui.screens.LaunchScreen
 import com.course.challengeme.ChallengePage
-import com.course.challengeme.HomePage
+import com.course.challengeme.ui.screens.HomePageScreen
 import com.course.challengeme.LeaderboardPage
 import com.course.challengeme.JoinViaCode
 import com.course.challengeme.ui.screens.LogInScreen
@@ -22,7 +22,7 @@ fun NavigationHost(navController: NavHostController = rememberNavController()) {
         composable(Navigation.Launch.route) { LaunchScreen(navController) }
         composable(Navigation.Login.route) { LogInScreen(navController) }
         composable(Navigation.Register.route) { RegisterScreen(navController) }
-        composable(Navigation.Home.route) { HomePage(navController) }
+        composable(Navigation.Home.route) { HomePageScreen(navController) }
         composable(Navigation.MyAccount.route) { MyAccount(navController) }
         composable(Navigation.CreateChallenge.route) { NewChallenge(navController) }
         composable(Navigation.InviteCode.route) { backStackEntry ->
