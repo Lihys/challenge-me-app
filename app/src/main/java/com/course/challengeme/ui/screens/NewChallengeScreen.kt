@@ -10,7 +10,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.course.challengeme.data.ChallengeCreationService
+import com.course.challengeme.data.ChallengeCreateJoinService
 import com.course.challengeme.navigations.Navigation
 import com.course.challengeme.ui.components.TextField
 import com.course.challengeme.ui.components.PrimaryButton
@@ -34,7 +34,7 @@ fun NewChallengeScreen(navController: NavController) {
     val datePickerState = rememberDatePickerState()
     val selectedDateMillis = datePickerState.selectedDateMillis
 
-    val ChallengeCreationService = remember { ChallengeCreationService() }
+    val ChallengeCreationService = remember { ChallengeCreateJoinService() }
     val coroutineScope = rememberCoroutineScope()
 
     val dateLabel = selectedDateMillis?.let {

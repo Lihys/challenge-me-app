@@ -6,10 +6,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.course.challengeme.ui.screens.LaunchScreen
-import com.course.challengeme.ChallengePage
 import com.course.challengeme.ui.screens.HomePageScreen
 import com.course.challengeme.LeaderboardPage
-import com.course.challengeme.JoinViaCode
+import com.course.challengeme.ui.screens.JoinViaCode
 import com.course.challengeme.ui.screens.LogInScreen
 import com.course.challengeme.MyAccount
 import com.course.challengeme.ui.screens.NewChallengeScreen

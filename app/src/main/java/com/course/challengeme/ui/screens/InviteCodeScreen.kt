@@ -13,7 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.course.challengeme.data.ChallengeCreationService
+import com.course.challengeme.data.ChallengeCreateJoinService
 import com.course.challengeme.navigations.Navigation
 import com.course.challengeme.ui.components.PrimaryButton
 import com.course.challengeme.ui.theme.AppBackground
@@ -24,7 +24,7 @@ import com.course.challengeme.ui.theme.ButtonDark
 fun InviteCodeScreen(navController: NavController, challengeId: String?) {
     var inviteCode by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(true) }
-    val challengeRepository = remember { ChallengeCreationService() }
+    val challengeRepository = remember { ChallengeCreateJoinService() }
     val clipboardManager = LocalClipboardManager.current
 
     LaunchedEffect(challengeId) {

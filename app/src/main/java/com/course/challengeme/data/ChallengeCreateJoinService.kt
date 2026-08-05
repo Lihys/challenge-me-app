@@ -2,10 +2,11 @@ package com.course.challengeme.data
 
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
-class ChallengeCreationService {
+class ChallengeCreateJoinService {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
@@ -51,5 +52,36 @@ class ChallengeCreationService {
     private fun generateInviteCode(): String {
         val chars = "ABCDEFGHIJLKLMNPQRSTUVWXYZ123456789" // 0 and o are confusing so we use the others
         return (1..6).map { chars.random() }.joinToString("")
+    }
+
+    suspend fun joinChallengeViaCode(inviteCode: String): Result<String> {
+        return try {
+            val userId = auth.currentUser?.uid
+                ?: return Result.failure(IllegalStateException("Not logged in"))
+
+            val querySnapshot = db.collection("challenges")
+                .whereEqualTo("inviteCode", inviteCode.uppercase())
+                .limit(1)
+                .get()
+                .await()
+
+            val challengeDoc = querySnapshot.documents.firstOrNull()
+                ?: return Result.failure(IllegalStateException("No challenge found with that code"))
+
+            val challengeId = challengeDoc.id
+            val challenge = challengeDoc.toObject(ChallengeModel::class.java)
+
+            if (challenge != null && userId in challenge.memberIds) {
+                return Result.failure(IllegalStateException("You're already in this challenge"))
+            }
+
+            db.collection("challenges").document(challengeId)
+                .update("memberIds", FieldValue.arrayUnion(userId))
+                .await()
+
+            Result.success(challengeId)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }
