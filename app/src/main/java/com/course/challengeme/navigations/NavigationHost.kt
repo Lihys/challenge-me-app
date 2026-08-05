@@ -7,10 +7,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.course.challengeme.ui.screens.LaunchScreen
 import com.course.challengeme.ui.screens.HomePageScreen
-import com.course.challengeme.LeaderboardPage
+import com.course.challengeme.ui.screens.ChallengePage
+import com.course.challengeme.ui.screens.LeaderboardPage
 import com.course.challengeme.ui.screens.JoinViaCode
 import com.course.challengeme.ui.screens.LogInScreen
-import com.course.challengeme.MyAccount
+import com.course.challengeme.ui.screens.MyAccount
 import com.course.challengeme.ui.screens.NewChallengeScreen
 import com.course.challengeme.ui.screens.RegisterScreen
 import com.course.challengeme.ui.screens.InviteCodeScreen
@@ -28,17 +29,16 @@ fun NavigationHost(navController: NavHostController = rememberNavController()) {
             val id = backStackEntry.arguments?.getString("challengeId")
             InviteCodeScreen(navController, challengeId = id)
         }
-        composable(Navigation.InviteCode.route) { backStackEntry ->
-            val id = backStackEntry.arguments?.getString("challengeId")
-            InviteCodeScreen(navController, challengeId = id)
-        }
         composable(Navigation.JoinChallenge.route) {
             JoinViaCode(navController)
+        }
+        composable(Navigation.ChallengePage.route) { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("challengeId")
+            ChallengePage(navController, challengeId = id)
         }
         composable(Navigation.Leaderboard.route) { backStackEntry ->
             val id = backStackEntry.arguments?.getString("challengeId")
             LeaderboardPage(navController, challengeId = id)
         }
-
     }
 }
