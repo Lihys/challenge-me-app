@@ -25,6 +25,8 @@ fun NavigationHost(navController: NavHostController = rememberNavController()) {
         composable(Navigation.Home.route) { HomePageScreen(navController) }
         composable(Navigation.MyAccount.route) { MyAccount(navController) }
         composable(Navigation.CreateChallenge.route) { NewChallengeScreen(navController) }
+
+
         composable(Navigation.InviteCode.route) { backStackEntry ->
             val id = backStackEntry.arguments?.getString("challengeId")
             InviteCodeScreen(navController, challengeId = id)
