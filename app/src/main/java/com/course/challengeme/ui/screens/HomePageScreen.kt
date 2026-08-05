@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.course.challengeme.data.Challenge
-import com.course.challengeme.data.ChallengeCreateJoinService
+import com.course.challengeme.data.ChallengeRepo
 import com.course.challengeme.navigations.Navigation
 import com.course.challengeme.ui.components.ChallengeCard
 import com.course.challengeme.ui.theme.AppBackground
@@ -35,7 +35,7 @@ fun HomePageScreen(navController: NavController) {
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    val challengeRepository = remember { ChallengeCreateJoinService() }
+    val challengeRepository = remember { ChallengeRepo() }
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
     val cardColors = listOf(ChallengeBgRed, ChallengeBgTan, ChallengeBgMauve)
 

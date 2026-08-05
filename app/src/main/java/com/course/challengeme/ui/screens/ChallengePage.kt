@@ -10,7 +10,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.course.challengeme.data.ChallengeCreateJoinService
+import com.course.challengeme.data.ChallengeRepo
 import com.course.challengeme.data.ChallengeModel
 import com.course.challengeme.navigations.Navigation
 import com.course.challengeme.ui.components.PrimaryButton
@@ -27,7 +27,7 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    val challengeRepository = remember { ChallengeCreateJoinService() }
+    val challengeRepository = remember { ChallengeRepo() }
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
     LaunchedEffect(challengeId) {

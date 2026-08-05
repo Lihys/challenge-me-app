@@ -11,7 +11,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.course.challengeme.data.ChallengeCreateJoinService
+import com.course.challengeme.data.ChallengeRepo
 import com.course.challengeme.navigations.Navigation
 import com.course.challengeme.ui.components.TextField
 import com.course.challengeme.ui.components.PrimaryButton
@@ -25,7 +25,7 @@ fun JoinViaCode(navController: NavController) {
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(false) }
 
-    val challengeRepository = remember { ChallengeCreateJoinService() }
+    val challengeRepository = remember { ChallengeRepo() }
     val coroutineScope = rememberCoroutineScope()
 
     Column(
