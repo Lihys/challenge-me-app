@@ -21,6 +21,7 @@ import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.ButtonDark
 import kotlinx.coroutines.launch
+import com.course.challengeme.data.UserRepo
 
 @Composable
 fun RegisterScreen(navController: NavController) {
@@ -32,6 +33,7 @@ fun RegisterScreen(navController: NavController) {
     var isLoading by remember { mutableStateOf(false) }
 
     val authRepository = remember { FirebaseAuth() }
+    val userRepository = remember { UserRepo() }
     val coroutineScope = rememberCoroutineScope()
 
     fun goHomeAndClearBackStack() {
@@ -79,8 +81,17 @@ fun RegisterScreen(navController: NavController) {
                     isLoading = true
                     errorMessage = null
                     authRepository.register(email, password)
-                        .onSuccess { goHomeAndClearBackStack() }
-                        .onFailure { errorMessage = it.localizedMessage ?: "Registration failed" }
+                        .onSuccess {
+                            val userId =
+                                com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+                            if (userId != null) {
+                                userRepository.saveUserProfile(userId, name, email)
+                            }
+                            goHomeAndClearBackStack()
+                        }
+                        .onFailure {
+                            errorMessage = it.localizedMessage ?: "Registration failed"
+                        }
                     isLoading = false
                 }
             }
