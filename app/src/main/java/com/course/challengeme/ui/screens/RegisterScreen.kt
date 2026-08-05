@@ -82,16 +82,13 @@ fun RegisterScreen(navController: NavController) {
                     errorMessage = null
                     authRepository.register(email, password)
                         .onSuccess {
-                            val userId =
-                                com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+                            val userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
                             if (userId != null) {
                                 userRepository.saveUserProfile(userId, name, email)
                             }
                             goHomeAndClearBackStack()
                         }
-                        .onFailure {
-                            errorMessage = it.localizedMessage ?: "Registration failed"
-                        }
+                        .onFailure { errorMessage = it.localizedMessage ?: "Registration failed" }
                     isLoading = false
                 }
             }
