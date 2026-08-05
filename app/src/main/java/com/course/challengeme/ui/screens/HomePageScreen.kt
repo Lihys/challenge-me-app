@@ -8,7 +8,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.course.challengeme.data.Challenge
+import com.course.challengeme.data.ChallengeCreateJoinService
 import com.course.challengeme.navigations.Navigation
 import com.course.challengeme.ui.components.ChallengeCard
 import com.course.challengeme.ui.theme.AppBackground
@@ -25,17 +26,40 @@ import com.course.challengeme.ui.theme.ButtonDark
 import com.course.challengeme.ui.theme.ChallengeBgMauve
 import com.course.challengeme.ui.theme.ChallengeBgRed
 import com.course.challengeme.ui.theme.ChallengeBgTan
-
-// hardcoded data to change ofc
-private val placeholderChallenges = listOf(
-    Challenge("1", "No Skipping Class", 6, 120, ChallengeBgRed),
-    Challenge("2", "Gym 5x a Week", 4, 85, ChallengeBgTan),
-    Challenge("3", "Daily Reading", 3, 40, ChallengeBgMauve),
-)
+import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePageScreen(navController: NavController) {
+    var challenges by remember { mutableStateOf<List<Challenge>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val challengeRepository = remember { ChallengeCreateJoinService() }
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+    val cardColors = listOf(ChallengeBgRed, ChallengeBgTan, ChallengeBgMauve)
+
+    LaunchedEffect(currentUserId) {
+        if (currentUserId != null) {
+            challengeRepository.getChallengesForUser(currentUserId)
+                .onSuccess { models ->
+                    challenges = models.mapIndexed { index, model ->
+                        Challenge(
+                            id = model.id,
+                            title = model.title,
+                            memberCount = model.memberIds.size,
+                            myPoints = 0, // real scoring comes later
+                            cardColor = cardColors[index % cardColors.size]
+                        )
+                    }
+                }
+                .onFailure { errorMessage = it.localizedMessage ?: "Couldn't load challenges" }
+        } else {
+            errorMessage = "Not logged in"
+        }
+        isLoading = false
+    }
+
     Scaffold(
         containerColor = AppBackground,
         topBar = {
@@ -71,35 +95,38 @@ fun HomePageScreen(navController: NavController) {
             }
         }
     ) { innerPadding ->
-        if (placeholderChallenges.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentAlignment = Alignment.Center
+        ) {
+            when {
+                isLoading -> CircularProgressIndicator(color = ButtonDark)
+                errorMessage != null -> Text(
+                    text = errorMessage ?: "",
+                    color = MaterialTheme.colorScheme.error
+                )
+                challenges.isEmpty() -> Text(
                     text = "No challenges yet. Create one or join with a code!",
                     color = AppText.copy(alpha = 0.6f),
                     fontSize = 15.sp
                 )
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(vertical = 16.dp)
-            ) {
-                items(placeholderChallenges) { challenge ->
-                    ChallengeCard(
-                        challenge = challenge,
-                        onClick = {
-                            navController.navigate(Navigation.ChallengePage.createRoute(challenge.id))
-                        }
-                    )
+                else -> LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(vertical = 16.dp)
+                ) {
+                    items(challenges) { challenge ->
+                        ChallengeCard(
+                            challenge = challenge,
+                            onClick = {
+                                navController.navigate(Navigation.ChallengePage.createRoute(challenge.id))
+                            }
+                        )
+                    }
                 }
             }
         }

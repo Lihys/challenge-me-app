@@ -84,4 +84,21 @@ class ChallengeCreateJoinService {
             Result.failure(e)
         }
     }
+
+    suspend fun getChallengesForUser(userId: String): Result<List<ChallengeModel>> {
+        return try {
+            val querySnapshot = db.collection("challenges")
+                .whereArrayContains("memberIds", userId)
+                .get()
+                .await()
+
+            val challenges = querySnapshot.documents.mapNotNull {
+                it.toObject(ChallengeModel::class.java)
+            }
+            Result.success(challenges)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
 }
