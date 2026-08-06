@@ -129,7 +129,10 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(AppBackground)) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(AppBackground)
+        .statusBarsPadding()) {
         when {
             isLoading -> CircularProgressIndicator(color = ButtonDark, modifier = Modifier.align(Alignment.Center))
             errorMessage != null -> Text(
