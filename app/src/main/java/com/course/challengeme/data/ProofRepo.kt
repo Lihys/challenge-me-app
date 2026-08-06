@@ -6,9 +6,11 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import java.util.Calendar
+import java.util.Date
 import java.util.UUID
 
 class ProofRepo {
@@ -17,8 +19,10 @@ class ProofRepo {
     private val auth = FirebaseAuth.getInstance()
 
     companion object {
-        const val BASE_POINTS = 10L
-        const val PROOF_BONUS = 5L // extra points for photo or location proof
+        const val TEXT_POINTS = 10L
+        const val PHOTO_BONUS = 5L
+        const val LOCATION_BONUS = 5L
+        const val TEAM_BONUS = 5L
     }
 
     private fun startOfTodayTimestamp(): Timestamp {
@@ -41,25 +45,84 @@ class ProofRepo {
         return !snapshot.isEmpty
     }
 
-    private suspend fun awardPointsAndSave(
-        challengeId: String,
-        userId: String,
-        type: String,
-        points: Long,
-        textContent: String? = null,
-        photoUrl: String? = null,
-        x: Double? = null ,
-        y: Double? = null,
-    ): Result<Unit> {
+    suspend fun getRecentUpdates(challengeId: String, limit: Long = 20): Result<List<ProofModel>> {
         return try {
+            val snapshot = db.collection("updates")
+                .whereEqualTo("challengeId", challengeId)
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .limit(limit)
+                .get()
+                .await()
+            Result.success(snapshot.documents.mapNotNull { it.toObject(ProofModel::class.java) })
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Submits one check-in with any combination of text / photo / location
+     * Points = 10 (text) + 5 (photo) + 5 (location), plus a same-day team bonus!!
+     */
+    suspend fun submitProof(
+        challengeId: String,
+        context: Context,
+        text: String?,
+        photoUri: Uri?,
+        yAxis: Double?,
+        xAxis: Double?
+    ): Result<Long> {
+        val userId = auth.currentUser?.uid
+            ?: return Result.failure(IllegalStateException("Not logged in"))
+
+        if (hasSubmittedToday(challengeId, userId)) {
+            return Result.failure(IllegalStateException("You already checked in today"))
+        }
+
+        val hasText = !text.isNullOrBlank()
+        val hasPhoto = photoUri != null
+        val hasLocation = yAxis != null && xAxis != null
+
+        if (!hasText && !hasPhoto && !hasLocation) {
+            return Result.failure(IllegalStateException("Add some text, a photo, or your location"))
+        }
+
+        return try {
+            var photoUrl: String? = null
+            if (hasPhoto) {
+                val ref = storage.reference.child("update_photos/$challengeId/$userId/${UUID.randomUUID()}.jpg")
+                ref.putFile(photoUri!!).await()
+                photoUrl = ref.downloadUrl.await().toString()
+            }
+
+            var points = 0L
+            if (hasText) points += TEXT_POINTS
+            if (hasPhoto) points += PHOTO_BONUS
+            if (hasLocation) points += LOCATION_BONUS
+
+            // Team bonus check — distinct members who already checked in today, before this one
+            val todaySnapshot = db.collection("updates")
+                .whereEqualTo("challengeId", challengeId)
+                .whereGreaterThanOrEqualTo("createdAt", startOfTodayTimestamp())
+                .get()
+                .await()
+            val distinctTodayUserIds = todaySnapshot.documents
+                .mapNotNull { it.getString("userId") }
+                .toSet()
+            val teamBonusApplies = distinctTodayUserIds.isNotEmpty() // someone else already checked in today so a bonus
+            if (teamBonusApplies) points += TEAM_BONUS
+
             val update = ProofModel(
                 challengeId = challengeId,
                 userId = userId,
-                type = type,
-                textContent = textContent,
+                type = listOfNotNull(
+                    if (hasText) "text" else null,
+                    if (hasPhoto) "photo" else null,
+                    if (hasLocation) "location" else null
+                ).joinToString(","),
+                textContent = text,
                 photoUrl = photoUrl,
-                x = x,
-                y = y,
+                y = yAxis,
+                x = xAxis,
                 pointsAwarded = points,
                 createdAt = Timestamp.now()
             )
@@ -69,49 +132,26 @@ class ProofRepo {
                 .update("memberPoints.$userId", FieldValue.increment(points))
                 .await()
 
-            Result.success(Unit)
+            Result.success(points)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    suspend fun submitTextUpdate(challengeId: String, text: String): Result<Unit> {
-        val userId = auth.currentUser?.uid
-            ?: return Result.failure(IllegalStateException("Not logged in"))
-        if (hasSubmittedToday(challengeId, userId)) {
-            return Result.failure(IllegalStateException("Already submitted today"))
-        }
-        return awardPointsAndSave(challengeId, userId, "text", BASE_POINTS, textContent = text)
-    }
-
-    suspend fun submitPhotoUpdate(challengeId: String, context: Context, imageUri: Uri): Result<Unit> {
-        val userId = auth.currentUser?.uid
-            ?: return Result.failure(IllegalStateException("Not logged in"))
-        if (hasSubmittedToday(challengeId, userId)) {
-            return Result.failure(IllegalStateException("Already submitted today"))
-        }
+    suspend fun getWeeklyLeaderboard(challengeId: String): Result<List<Pair<String, Long>>> {
         return try {
-            val ref = storage.reference.child("update_photos/$challengeId/$userId/${UUID.randomUUID()}.jpg")
-            ref.putFile(imageUri).await()
-            val downloadUrl = ref.downloadUrl.await().toString()
-
-            awardPointsAndSave(
-                challengeId, userId, "photo", BASE_POINTS + PROOF_BONUS, photoUrl = downloadUrl
-            )
+            val sevenDaysAgo = Timestamp(Date(System.currentTimeMillis() - 7L * 24 * 60 * 60 * 1000))
+            val snapshot = db.collection("updates")
+                .whereEqualTo("challengeId", challengeId)
+                .whereGreaterThanOrEqualTo("createdAt", sevenDaysAgo)
+                .get()
+                .await()
+            val updates = snapshot.documents.mapNotNull { it.toObject(ProofModel::class.java) }
+            val totals = updates.groupBy { it.userId }
+                .mapValues { (_, ups) -> ups.sumOf { it.pointsAwarded } }
+            Result.success(totals.entries.sortedByDescending { it.value }.map { it.key to it.value })
         } catch (e: Exception) {
             Result.failure(e)
         }
-    }
-
-    suspend fun submitLocationUpdate(challengeId: String, xAxis: Double, yAxis: Double): Result<Unit> {
-        val userId = auth.currentUser?.uid
-            ?: return Result.failure(IllegalStateException("Not logged in"))
-        if (hasSubmittedToday(challengeId, userId)) {
-            return Result.failure(IllegalStateException("Already submitted today"))
-        }
-        return awardPointsAndSave(
-            challengeId, userId, "location", BASE_POINTS + PROOF_BONUS,
-            x = xAxis, y = yAxis,
-        )
     }
 }
