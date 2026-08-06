@@ -34,6 +34,10 @@ class FirebaseAuth {
         }
     }
 
+    fun signOut() {
+        auth.signOut()
+    }
+
     suspend fun signInWithGoogle(context: Context): Result<Unit> {
         return try {
             val credentialManager = CredentialManager.create(context)

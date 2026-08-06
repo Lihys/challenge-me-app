@@ -158,4 +158,18 @@ class ProofRepo {
             Result.failure(e)
         }
     }
+
+    suspend fun getUpdateCountForUser(userId: String): Result<Int> {
+        return try {
+            val snapshot = db.collection("updates")
+                .whereEqualTo("userId", userId)
+                .get()
+                .await()
+            Result.success(snapshot.size())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
 }

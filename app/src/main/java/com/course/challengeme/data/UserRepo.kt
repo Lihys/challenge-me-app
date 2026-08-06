@@ -28,4 +28,16 @@ class UserRepo {
         }
         return result
     }
+
+
+    suspend fun getUserProfile(userId: String): Result<Pair<String, String>> {
+        return try {
+            val doc = db.collection("users").document(userId).get().await()
+            val name = doc.getString("name") ?: "Unknown"
+            val email = doc.getString("email") ?: ""
+            Result.success(name to email)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
