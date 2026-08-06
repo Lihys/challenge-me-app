@@ -35,14 +35,18 @@ class ProofRepo {
     }
 
     suspend fun hasSubmittedToday(challengeId: String, userId: String): Boolean {
-        val snapshot = db.collection("updates")
-            .whereEqualTo("challengeId", challengeId)
-            .whereEqualTo("userId", userId)
-            .whereGreaterThanOrEqualTo("createdAt", startOfTodayTimestamp())
-            .limit(1)
-            .get()
-            .await()
-        return !snapshot.isEmpty
+        return try {
+            val snapshot = db.collection("updates")
+                .whereEqualTo("challengeId", challengeId)
+                .whereEqualTo("userId", userId)
+                .whereGreaterThanOrEqualTo("createdAt", startOfTodayTimestamp())
+                .limit(1)
+                .get()
+                .await()
+            !snapshot.isEmpty
+        } catch (e: Exception) {
+            false
+        }
     }
 
     suspend fun getRecentUpdates(challengeId: String, limit: Long = 20): Result<List<ProofModel>> {
