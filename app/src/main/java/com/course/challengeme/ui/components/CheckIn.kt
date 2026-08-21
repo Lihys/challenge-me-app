@@ -27,6 +27,13 @@ import com.course.challengeme.ui.theme.ChallengeBgTan
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import androidx.compose.foundation.clickable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 
 @Composable
 fun CheckIn(update: ProofModel, memberName: String, modifier: Modifier = Modifier) {
@@ -82,15 +89,23 @@ fun CheckIn(update: ProofModel, memberName: String, modifier: Modifier = Modifie
         if (update.photoUrl != null || (update.y != null && update.x != null)) {
             Spacer(modifier = Modifier.height(6.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (update.photoUrl != null) {
-                    AssistChip(
-                        onClick = {},
-                        label = { Text("Photo proof", fontSize = 11.sp) },
-                        leadingIcon = { Icon(Icons.Default.Photo, contentDescription = null, modifier = Modifier.size(14.dp)) },
-                        colors = AssistChipDefaults.assistChipColors(containerColor = AppBackground)
+                update.photoUrl?.let { url ->
+                    Spacer(modifier = Modifier.height(8.dp))
+                    var expanded by remember { mutableStateOf(false) }
+                    AsyncImage(
+                        model = url,
+                        contentDescription = "Check-in photo",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(if (expanded) 260.dp else 140.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable { expanded = !expanded }
                     )
                 }
+
                 if (update.y != null && update.x != null) {
+                    Spacer(modifier = Modifier.height(6.dp))
                     AssistChip(
                         onClick = {},
                         label = { Text("Location", fontSize = 11.sp) },
