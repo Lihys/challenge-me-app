@@ -46,6 +46,10 @@ import java.util.Locale
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 
+// for loading everything concurrencly and not one by one so it will work ahh
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.async
+
 @SuppressLint("MissingPermission")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,8 +77,13 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
     var isSubmitting by remember { mutableStateOf(false) }
     var submitError by remember { mutableStateOf<String?>(null) }
 
-    suspend fun loadEverything(id: String) {
-        challengeRepository.getChallenge(id)
+
+    suspend fun loadEverything(id: String) = coroutineScope {
+        val challengeDeferred = async { challengeRepository.getChallenge(id) }
+        val updatesDeferred = async { updateRepository.getRecentUpdates(id) }
+        val weeklyDeferred = async { updateRepository.getWeeklyLeaderboard(id) }
+
+        challengeDeferred.await()
             .onSuccess { c ->
                 challenge = c
                 val names = userRepository.getUsersByIds(c.memberIds)
@@ -84,16 +93,16 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                     .sortedByDescending { it.second }
                     .indexOfFirst { it.first == currentUserId }
                     .let { if (it >= 0) it + 1 else null }
+
+                weeklyDeferred.await().onSuccess { entries ->
+                    weeklyTop = entries.take(3).map { (uid, pts) ->
+                        TopMember(names[uid] ?: "Unknown", pts)
+                    }
+                }
             }
             .onFailure { errorMessage = it.localizedMessage ?: "Couldn't load challenge" }
 
-        updateRepository.getWeeklyLeaderboard(id).onSuccess { entries ->
-            weeklyTop = entries.take(3).map { (uid, pts) ->
-                TopMember(memberNames[uid] ?: "Unknown", pts)
-            }
-        }
-
-        updateRepository.getRecentUpdates(id).onSuccess { recentUpdates = it }
+        updatesDeferred.await().onSuccess { recentUpdates = it }
     }
 
     LaunchedEffect(challengeId) {
@@ -246,22 +255,22 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                                 label = { Text(if (attachedLocation != null) "GPS ✓" else "GPS +5", fontSize = 12.sp) },
                                 leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(14.dp)) }
                             )
+                        }
 
-                            attachedPhotoUri?.let { uri ->
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    AsyncImage(
-                                        model = uri,
-                                        contentDescription = "Attached photo",
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                            .size(56.dp)
-                                            .clip(RoundedCornerShape(12.dp))
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    TextButton(onClick = { attachedPhotoUri = null }) {
-                                        Text("Remove", color = ButtonDark, fontSize = 12.sp)
-                                    }
+                        attachedPhotoUri?.let { uri ->
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                AsyncImage(
+                                    model = uri,
+                                    contentDescription = "Attached photo",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(56.dp)
+                                        .clip(RoundedCornerShape(12.dp))
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                TextButton(onClick = { attachedPhotoUri = null }) {
+                                    Text("Remove", color = ButtonDark, fontSize = 12.sp)
                                 }
                             }
                         }
