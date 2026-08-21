@@ -20,21 +20,30 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.course.challengeme.data.ChallengeRepo
 import com.course.challengeme.data.LeaderboardEntry
+import com.course.challengeme.data.LeaderboardMode
+import com.course.challengeme.data.ProofRepo
 import com.course.challengeme.data.UserRepo
+import com.course.challengeme.data.buildLeaderboardEntries
 import com.course.challengeme.ui.components.LeaderboardPodium
+import com.course.challengeme.ui.components.LeaderboardToggle
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.ButtonDark
 import com.course.challengeme.ui.theme.ChallengeBgTan
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 @Composable
 fun LeaderboardPage(navController: NavController, challengeId: String?) {
-    var entries by remember { mutableStateOf<List<LeaderboardEntry>>(emptyList()) }
+    var weeklyEntries by remember { mutableStateOf<List<LeaderboardEntry>>(emptyList()) }
+    var totalEntries by remember { mutableStateOf<List<LeaderboardEntry>>(emptyList()) }
+    var leaderboardMode by remember { mutableStateOf(LeaderboardMode.WEEKLY) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val challengeRepo = remember { ChallengeRepo() }
+    val proofRepo = remember { ProofRepo() }
     val userRepo = remember { UserRepo() }
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
@@ -44,24 +53,25 @@ fun LeaderboardPage(navController: NavController, challengeId: String?) {
             isLoading = false
             return@LaunchedEffect
         }
-        challengeRepo.getChallenge(challengeId)
-            .onSuccess { challenge ->
-                val names = userRepo.getUsersByIds(challenge.memberIds)
-                entries = challenge.memberIds
-                    .map { uid -> uid to (challenge.memberPoints[uid] ?: 0L) }
-                    .sortedByDescending { it.second }
-                    .mapIndexed { index, (uid, points) ->
-                        LeaderboardEntry(
-                            userId = uid,
-                            name = names[uid] ?: "Unknown",
-                            points = points,
-                            rank = index + 1
-                        )
+        coroutineScope {
+            val challengeDeferred = async { challengeRepo.getChallenge(challengeId) }
+            val weeklyDeferred = async { proofRepo.getWeeklyLeaderboard(challengeId) }
+
+            challengeDeferred.await()
+                .onSuccess { challenge ->
+                    val names = userRepo.getUsersByIds(challenge.memberIds)
+                    totalEntries = buildLeaderboardEntries(challenge.memberIds, challenge.memberPoints, names)
+
+                    weeklyDeferred.await().onSuccess { weeklyPairs ->
+                        weeklyEntries = buildLeaderboardEntries(challenge.memberIds, weeklyPairs.toMap(), names)
                     }
-            }
-            .onFailure { errorMessage = it.localizedMessage ?: "Couldn't load leaderboard" }
+                }
+                .onFailure { errorMessage = it.localizedMessage ?: "Couldn't load leaderboard" }
+        }
         isLoading = false
     }
+
+    val entries = if (leaderboardMode == LeaderboardMode.TOTAL) totalEntries else weeklyEntries
 
     Column(
         modifier = Modifier
@@ -93,6 +103,14 @@ fun LeaderboardPage(navController: NavController, challengeId: String?) {
                 val topThree = entries.take(3)
                 val rest = entries.drop(3)
                 val myEntry = entries.find { it.userId == currentUserId }
+
+                LeaderboardToggle(
+                    selected = leaderboardMode,
+                    onSelect = { leaderboardMode = it },
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 8.dp)
+                )
 
                 LeaderboardPodium(topThree = topThree, modifier = Modifier.padding(vertical = 24.dp))
 

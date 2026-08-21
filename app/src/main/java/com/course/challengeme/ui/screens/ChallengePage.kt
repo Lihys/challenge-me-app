@@ -26,14 +26,17 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.course.challengeme.data.ChallengeModel
 import com.course.challengeme.data.ChallengeRepo
+import com.course.challengeme.data.LeaderboardEntry
+import com.course.challengeme.data.LeaderboardMode
 import com.course.challengeme.data.ProofModel
 import com.course.challengeme.data.ProofRepo
 import com.course.challengeme.data.UserRepo
+import com.course.challengeme.data.buildLeaderboardEntries
 import com.course.challengeme.navigations.Navigation
 import com.course.challengeme.ui.components.TextField
 import com.course.challengeme.ui.components.CheckIn
-import com.course.challengeme.ui.components.TopMember
-import com.course.challengeme.ui.components.WeeklyTop
+import com.course.challengeme.ui.components.LeaderboardPodium
+import com.course.challengeme.ui.components.LeaderboardToggle
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.ButtonDark
@@ -60,10 +63,11 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    var weeklyTop by remember { mutableStateOf<List<TopMember>>(emptyList()) }
+    var weeklyEntries by remember { mutableStateOf<List<LeaderboardEntry>>(emptyList()) }
+    var totalEntries by remember { mutableStateOf<List<LeaderboardEntry>>(emptyList()) }
+    var leaderboardMode by remember { mutableStateOf(LeaderboardMode.WEEKLY) }
     var recentUpdates by remember { mutableStateOf<List<ProofModel>>(emptyList()) }
     var memberNames by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
-    var overallRank by remember { mutableStateOf<Int?>(null) }
 
     val challengeRepository = remember { ChallengeRepo() }
     val userRepository = remember { UserRepo() }
@@ -90,16 +94,10 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                 challenge = c
                 val names = userRepository.getUsersByIds(c.memberIds)
                 memberNames = names
-                overallRank = c.memberIds
-                    .map { it to (c.memberPoints[it] ?: 0L) }
-                    .sortedByDescending { it.second }
-                    .indexOfFirst { it.first == currentUserId }
-                    .let { if (it >= 0) it + 1 else null }
+                totalEntries = buildLeaderboardEntries(c.memberIds, c.memberPoints, names)
 
-                weeklyDeferred.await().onSuccess { entries ->
-                    weeklyTop = entries.take(3).map { (uid, pts) ->
-                        TopMember(names[uid] ?: "Unknown", pts)
-                    }
+                weeklyDeferred.await().onSuccess { weeklyPairs ->
+                    weeklyEntries = buildLeaderboardEntries(c.memberIds, weeklyPairs.toMap(), names)
                 }
             }
             .onFailure { errorMessage = it.localizedMessage ?: "Couldn't load challenge" }
@@ -179,9 +177,17 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         item {
-                            Text("This Week", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = AppText)
+                            val leaderboardEntries = if (leaderboardMode == LeaderboardMode.TOTAL) totalEntries else weeklyEntries
+                            val myRank = leaderboardEntries.find { it.userId == currentUserId }?.rank
+
+                            Text("Leaderboard", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = AppText)
                             Spacer(modifier = Modifier.height(12.dp))
-                            WeeklyTop(topThree = weeklyTop)
+                            LeaderboardToggle(
+                                selected = leaderboardMode,
+                                onSelect = { leaderboardMode = it }
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            LeaderboardPodium(topThree = leaderboardEntries.take(3))
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Text(c.title, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = AppText)
@@ -193,7 +199,10 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                             ) {
                                 Text(
                                     text = buildString {
-                                        overallRank?.let { append("You're #$it overall | ") }
+                                        myRank?.let {
+                                            val label = if (leaderboardMode == LeaderboardMode.TOTAL) "overall" else "this week"
+                                            append("You're #$it $label | ")
+                                        }
                                         append("${c.memberIds.size} members | ends $dateLabel")
                                     },
                                     fontSize = 12.sp,
