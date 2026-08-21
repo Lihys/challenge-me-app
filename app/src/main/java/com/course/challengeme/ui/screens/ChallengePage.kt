@@ -43,6 +43,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Locale
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 
 @SuppressLint("MissingPermission")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -199,10 +201,7 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                         items(recentUpdates) { update ->
                             CheckIn(
                                 update = update,
-                                memberName = memberNames[update.userId] ?: "Unknown",
-                                modifier = Modifier
-                                    .padding(bottom = 12.dp)
-                                    .background(AppBackground.copy(alpha = 0f))
+                                memberName = memberNames[update.userId] ?: "Unknown"
                             )
                         }
 
@@ -247,6 +246,24 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                                 label = { Text(if (attachedLocation != null) "GPS ✓" else "GPS +5", fontSize = 12.sp) },
                                 leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(14.dp)) }
                             )
+
+                            attachedPhotoUri?.let { uri ->
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    AsyncImage(
+                                        model = uri,
+                                        contentDescription = "Attached photo",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(56.dp)
+                                            .clip(RoundedCornerShape(12.dp))
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    TextButton(onClick = { attachedPhotoUri = null }) {
+                                        Text("Remove", color = ButtonDark, fontSize = 12.sp)
+                                    }
+                                }
+                            }
                         }
 
                         Spacer(modifier = Modifier.height(12.dp))

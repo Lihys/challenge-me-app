@@ -78,9 +78,9 @@ class ProofRepo {
         val userId = auth.currentUser?.uid
             ?: return Result.failure(IllegalStateException("Not logged in"))
 
-        if (hasSubmittedToday(challengeId, userId)) {
+        /*if (hasSubmittedToday(challengeId, userId)) {
             return Result.failure(IllegalStateException("You already checked in today"))
-        }
+        }*/
 
         val hasText = !text.isNullOrBlank()
         val hasPhoto = photoUri != null

@@ -81,4 +81,5 @@ dependencies {
     implementation(libs.googleid)
 
     implementation("androidx.compose.material:material-icons-extended:1.7.3")
+    implementation(libs.coil.compose)
 }

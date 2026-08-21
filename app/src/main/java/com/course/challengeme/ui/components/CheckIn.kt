@@ -1,5 +1,6 @@
 package com.course.challengeme.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -7,12 +8,14 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -20,6 +23,7 @@ import com.course.challengeme.data.ProofModel
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.ButtonDark
+import com.course.challengeme.ui.theme.ChallengeBgTan
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -39,15 +43,11 @@ fun CheckIn(update: ProofModel, memberName: String, modifier: Modifier = Modifie
         "$prefix $time"
     } ?: ""
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .padding(1.dp)
-    ) {
+    Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top
         ) {
             Column {
                 Text(memberName, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = AppText)
@@ -61,9 +61,22 @@ fun CheckIn(update: ProofModel, memberName: String, modifier: Modifier = Modifie
             )
         }
 
-        update.textContent?.let {
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(it, fontSize = 13.sp, color = AppText.copy(alpha = 0.8f))
+        update.textContent?.let { comment ->
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(ChallengeBgTan.copy(alpha = 0.18f))
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = "\u201C$comment\u201D",
+                    fontSize = 14.sp,
+                    fontStyle = FontStyle.Italic,
+                    color = AppText.copy(alpha = 0.85f)
+                )
+            }
         }
 
         if (update.photoUrl != null || (update.y != null && update.x != null)) {
@@ -87,5 +100,8 @@ fun CheckIn(update: ProofModel, memberName: String, modifier: Modifier = Modifie
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(12.dp))
+        HorizontalDivider(color = AppText.copy(alpha = 0.08f))
     }
 }
