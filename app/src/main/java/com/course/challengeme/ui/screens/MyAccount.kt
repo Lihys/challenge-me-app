@@ -30,6 +30,9 @@ import com.course.challengeme.ui.theme.ChallengeBgTan
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+
 private data class AccountStats(
     val totalPoints: Long = 0,
     val checkIns: Int = 0,
@@ -52,18 +55,25 @@ fun MyAccount(navController: NavController) {
 
     LaunchedEffect(userId) {
         if (userId != null) {
-            userRepository.getUserProfile(userId).onSuccess { (n, e) ->
-                name = n
-                email = e
-            }
+            coroutineScope {
+                val profileDeferred = async { userRepository.getUserProfile(userId) }
+                val challengesDeferred = async { challengeRepository.getChallengesForUser(userId) }
+                val checkInCountDeferred = async { proofRepository.getUpdateCountForUser(userId) }
 
-            challengeRepository.getChallengesForUser(userId).onSuccess { challenges ->
-                val totalPoints = challenges.sumOf { it.memberPoints[userId] ?: 0L }
-                proofRepository.getUpdateCountForUser(userId).onSuccess { checkInCount ->
+                profileDeferred.await().onSuccess { (n, e) ->
+                    name = n
+                    email = e
+                }
+
+                val challenges = challengesDeferred.await()
+                val checkInCount = checkInCountDeferred.await()
+
+                challenges.onSuccess { list ->
+                    val totalPoints = list.sumOf { it.memberPoints[userId] ?: 0L }
                     stats = AccountStats(
                         totalPoints = totalPoints,
-                        checkIns = checkInCount,
-                        challenges = challenges.size
+                        checkIns = checkInCount.getOrDefault(0),
+                        challenges = list.size
                     )
                 }
             }
