@@ -290,15 +290,25 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                                         photoUri = attachedPhotoUri,
                                         yAxis = attachedLocation?.first,
                                         xAxis = attachedLocation?.second
-                                    ).onSuccess {
+                                    ).onSuccess { savedUpdate ->
+                                        // Instant local update — don't wait on a re-fetch
+                                        recentUpdates = listOf(savedUpdate) + recentUpdates
+                                        challenge = challenge?.let { c ->
+                                            val newPoints = (c.memberPoints[savedUpdate.userId] ?: 0L) + savedUpdate.pointsAwarded
+                                            c.copy(memberPoints = c.memberPoints + (savedUpdate.userId to newPoints))
+                                        }
+
                                         checkInText = ""
                                         attachedPhotoUri = null
                                         attachedLocation = null
-                                        loadEverything(challengeId)
+                                        isSubmitting = false
+
+                                        // Background refresh to true-up leaderboard/rank — doesn't block the UI
+                                        coroutineScope.launch { loadEverything(challengeId) }
                                     }.onFailure {
                                         submitError = it.localizedMessage ?: "Couldn't post update"
+                                        isSubmitting = false
                                     }
-                                    isSubmitting = false
                                 }
                             },
                             enabled = !isSubmitting,
