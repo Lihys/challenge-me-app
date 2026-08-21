@@ -48,7 +48,7 @@ fun HomePageScreen(navController: NavController) {
                             id = model.id,
                             title = model.title,
                             memberCount = model.memberIds.size,
-                            myPoints = 0, // real scoring comes later
+                            myPoints = (model.memberPoints[currentUserId] ?: 0L).toInt(),
                             cardColor = cardColors[index % cardColors.size]
                         )
                     }

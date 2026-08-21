@@ -17,3 +17,5 @@ data class ProofModel(
     val pointsAwarded: Long = 0,
     val createdAt: Timestamp? = null
 )
+
+
