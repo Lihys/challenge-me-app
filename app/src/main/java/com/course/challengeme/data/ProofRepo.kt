@@ -22,7 +22,7 @@ class ProofRepo {
     private val auth = FirebaseAuth.getInstance()
 
     companion object {
-        const val TEXT_POINTS = 10L
+        const val BASE_POINTS = 10L
         const val PHOTO_BONUS = 5L
         const val LOCATION_BONUS = 5L
         const val TEAM_BONUS = 5L
@@ -68,9 +68,11 @@ class ProofRepo {
 
     /**
      * Submits one check-in with any combination of text / photo / location
-     * Points = 10 (text) + 5 (photo) + 5 (location), plus a same-day team bonus!!
+     * Points = 10 (base, any check-in) + 5 (photo) + 5 (location),
+     * plus a +5 team bonus on the submission that brings today's distinct
+     * checked-in members to 2 or more.
 
-     returns the submitted item
+    returns the submitted item
      */
     suspend fun submitProof(
         challengeId: String,
@@ -107,14 +109,15 @@ class ProofRepo {
                         .whereGreaterThanOrEqualTo("createdAt", startOfTodayTimestamp())
                         .get()
                         .await()
-                    todaySnapshot.documents.mapNotNull { it.getString("userId") }.toSet().isNotEmpty()
+                    val checkedInToday = todaySnapshot.documents.mapNotNull { it.getString("userId") }.toMutableSet()
+                    checkedInToday.add(userId) // this submission counts toward today too
+                    checkedInToday.size >= 2
                 }
 
                 val photoUrl = photoUrlDeferred.await()
                 val teamBonusApplies = teamBonusDeferred.await()
 
-                var points = 0L
-                if (hasText) points += TEXT_POINTS
+                var points = BASE_POINTS
                 if (hasPhoto) points += PHOTO_BONUS
                 if (hasLocation) points += LOCATION_BONUS
                 if (teamBonusApplies) points += TEAM_BONUS

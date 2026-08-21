@@ -288,8 +288,7 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                                 val photoUri = attachedPhotoUri
                                 val location = attachedLocation
 
-                                var estimatedPoints = 0L
-                                if (!text.isNullOrBlank()) estimatedPoints += ProofRepo.TEXT_POINTS
+                                var estimatedPoints = ProofRepo.BASE_POINTS
                                 if (photoUri != null) estimatedPoints += ProofRepo.PHOTO_BONUS
                                 if (location != null) estimatedPoints += ProofRepo.LOCATION_BONUS
 
