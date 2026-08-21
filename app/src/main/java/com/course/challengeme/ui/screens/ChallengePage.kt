@@ -45,10 +45,12 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
+import com.android.identity.util.UUID
 
 // for loading everything concurrencly and not one by one so it will work ahh
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.async
+import com.google.firebase.Timestamp
 
 @SuppressLint("MissingPermission")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -280,47 +282,71 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                         Button(
                             onClick = {
                                 if (challengeId == null) return@Button
+                                val myId = currentUserId ?: return@Button
+
+                                val text = checkInText.ifBlank { null }
+                                val photoUri = attachedPhotoUri
+                                val location = attachedLocation
+
+                                var estimatedPoints = 0L
+                                if (!text.isNullOrBlank()) estimatedPoints += ProofRepo.TEXT_POINTS
+                                if (photoUri != null) estimatedPoints += ProofRepo.PHOTO_BONUS
+                                if (location != null) estimatedPoints += ProofRepo.LOCATION_BONUS
+
+                                val tempId = "pending-${UUID.randomUUID()}"
+                                val optimisticUpdate = ProofModel(
+                                    id = tempId,
+                                    challengeId = challengeId,
+                                    userId = myId,
+                                    textContent = text,
+                                    photoUrl = photoUri?.toString(), // Coil can render a local content:// uri directly
+                                    y = location?.first,
+                                    x = location?.second,
+                                    pointsAwarded = estimatedPoints,
+                                    createdAt = Timestamp.now()
+                                )
+
+                                // Show it right now — no network wait
+                                recentUpdates = listOf(optimisticUpdate) + recentUpdates
+                                challenge = challenge?.let { c ->
+                                    c.copy(memberPoints = c.memberPoints + (myId to ((c.memberPoints[myId] ?: 0L) + estimatedPoints)))
+                                }
+                                checkInText = ""
+                                attachedPhotoUri = null
+                                attachedLocation = null
+
+                                // Do the real write in the background; reconcile once it lands
+                                isSubmitting = true
                                 coroutineScope.launch {
-                                    isSubmitting = true
-                                    submitError = null
                                     updateRepository.submitProof(
                                         challengeId = challengeId,
                                         context = context,
-                                        text = checkInText.ifBlank { null },
-                                        photoUri = attachedPhotoUri,
-                                        yAxis = attachedLocation?.first,
-                                        xAxis = attachedLocation?.second
+                                        text = text,
+                                        photoUri = photoUri,
+                                        yAxis = location?.first,
+                                        xAxis = location?.second
                                     ).onSuccess { savedUpdate ->
-                                        // Instant local update — don't wait on a re-fetch
-                                        recentUpdates = listOf(savedUpdate) + recentUpdates
-                                        challenge = challenge?.let { c ->
-                                            val newPoints = (c.memberPoints[savedUpdate.userId] ?: 0L) + savedUpdate.pointsAwarded
-                                            c.copy(memberPoints = c.memberPoints + (savedUpdate.userId to newPoints))
+                                        recentUpdates = recentUpdates.map { if (it.id == tempId) savedUpdate else it }
+                                        val delta = savedUpdate.pointsAwarded - estimatedPoints
+                                        if (delta != 0L) {
+                                            challenge = challenge?.let { c ->
+                                                c.copy(memberPoints = c.memberPoints + (myId to ((c.memberPoints[myId] ?: 0L) + delta)))
+                                            }
                                         }
-
-                                        checkInText = ""
-                                        attachedPhotoUri = null
-                                        attachedLocation = null
-                                        isSubmitting = false
-
-                                        // Background refresh to true-up leaderboard/rank — doesn't block the UI
-                                        coroutineScope.launch { loadEverything(challengeId) }
                                     }.onFailure {
+                                        recentUpdates = recentUpdates.filterNot { it.id == tempId }
+                                        challenge = challenge?.let { c ->
+                                            c.copy(memberPoints = c.memberPoints + (myId to ((c.memberPoints[myId] ?: 0L) - estimatedPoints)))
+                                        }
                                         submitError = it.localizedMessage ?: "Couldn't post update"
-                                        isSubmitting = false
                                     }
+                                    isSubmitting = false
                                 }
                             },
                             enabled = !isSubmitting,
-                            shape = RoundedCornerShape(28.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = ButtonDark),
-                            modifier = Modifier.fillMaxWidth().height(52.dp)
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            if (isSubmitting) {
-                                CircularProgressIndicator(modifier = Modifier.size(20.dp), color = AppBackground)
-                            } else {
-                                Text("Post Update", color = AppBackground)
-                            }
+                            Text(if (isSubmitting) "Posting..." else "Post update")
                         }
                     }
                 }

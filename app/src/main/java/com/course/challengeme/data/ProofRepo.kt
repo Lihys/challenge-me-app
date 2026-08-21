@@ -13,6 +13,9 @@ import java.util.Calendar
 import java.util.Date
 import java.util.UUID
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+
 class ProofRepo {
     private val db = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
@@ -89,53 +92,62 @@ class ProofRepo {
         }
 
         return try {
-            var photoUrl: String? = null
-            if (hasPhoto) {
-                val ref = storage.reference.child("update_photos/$challengeId/$userId/${UUID.randomUUID()}.jpg")
-                ref.putFile(photoUri!!).await()
-                photoUrl = ref.downloadUrl.await().toString()
+            coroutineScope {
+                // Photo upload and the team-bonus check don't depend on each other — run them together
+                val photoUrlDeferred = async {
+                    if (hasPhoto) {
+                        val ref = storage.reference.child("update_photos/$challengeId/$userId/${UUID.randomUUID()}.jpg")
+                        ref.putFile(photoUri!!).await()
+                        ref.downloadUrl.await().toString()
+                    } else null
+                }
+                val teamBonusDeferred = async {
+                    val todaySnapshot = db.collection("updates")
+                        .whereEqualTo("challengeId", challengeId)
+                        .whereGreaterThanOrEqualTo("createdAt", startOfTodayTimestamp())
+                        .get()
+                        .await()
+                    todaySnapshot.documents.mapNotNull { it.getString("userId") }.toSet().isNotEmpty()
+                }
+
+                val photoUrl = photoUrlDeferred.await()
+                val teamBonusApplies = teamBonusDeferred.await()
+
+                var points = 0L
+                if (hasText) points += TEXT_POINTS
+                if (hasPhoto) points += PHOTO_BONUS
+                if (hasLocation) points += LOCATION_BONUS
+                if (teamBonusApplies) points += TEAM_BONUS
+
+                val update = ProofModel(
+                    challengeId = challengeId,
+                    userId = userId,
+                    type = listOfNotNull(
+                        if (hasText) "text" else null,
+                        if (hasPhoto) "photo" else null,
+                        if (hasLocation) "location" else null
+                    ).joinToString(","),
+                    textContent = text,
+                    photoUrl = photoUrl,
+                    y = yAxis,
+                    x = xAxis,
+                    pointsAwarded = points,
+                    createdAt = Timestamp.now()
+                )
+
+                // Creating the check-in doc and incrementing points don't depend on each other either
+                val addDeferred = async { db.collection("updates").add(update).await() }
+                val pointsUpdateDeferred = async {
+                    db.collection("challenges").document(challengeId)
+                        .update("memberPoints.$userId", FieldValue.increment(points))
+                        .await()
+                }
+
+                val docRef = addDeferred.await()
+                pointsUpdateDeferred.await()
+
+                Result.success(update.copy(id = docRef.id))
             }
-
-            var points = 0L
-            if (hasText) points += TEXT_POINTS
-            if (hasPhoto) points += PHOTO_BONUS
-            if (hasLocation) points += LOCATION_BONUS
-
-            val todaySnapshot = db.collection("updates")
-                .whereEqualTo("challengeId", challengeId)
-                .whereGreaterThanOrEqualTo("createdAt", startOfTodayTimestamp())
-                .get()
-                .await()
-            val distinctTodayUserIds = todaySnapshot.documents
-                .mapNotNull { it.getString("userId") }
-                .toSet()
-            if (distinctTodayUserIds.isNotEmpty()) points += TEAM_BONUS
-
-            val now = Timestamp.now()
-            val update = ProofModel(
-                challengeId = challengeId,
-                userId = userId,
-                type = listOfNotNull(
-                    if (hasText) "text" else null,
-                    if (hasPhoto) "photo" else null,
-                    if (hasLocation) "location" else null
-                ).joinToString(","),
-                textContent = text,
-                photoUrl = photoUrl,
-                y = yAxis,
-                x = xAxis,
-                pointsAwarded = points,
-                createdAt = now
-            )
-
-            val docRef = db.collection("updates").add(update).await()
-            val savedUpdate = update.copy(id = docRef.id)
-
-            db.collection("challenges").document(challengeId)
-                .update("memberPoints.$userId", FieldValue.increment(points))
-                .await()
-
-            Result.success(savedUpdate)
         } catch (e: Exception) {
             Result.failure(e)
         }
