@@ -66,6 +66,8 @@ class ProofRepo {
     /**
      * Submits one check-in with any combination of text / photo / location
      * Points = 10 (text) + 5 (photo) + 5 (location), plus a same-day team bonus!!
+
+     returns the submitted item
      */
     suspend fun submitProof(
         challengeId: String,
@@ -74,13 +76,9 @@ class ProofRepo {
         photoUri: Uri?,
         yAxis: Double?,
         xAxis: Double?
-    ): Result<Long> {
+    ): Result<ProofModel> {
         val userId = auth.currentUser?.uid
             ?: return Result.failure(IllegalStateException("Not logged in"))
-
-        /*if (hasSubmittedToday(challengeId, userId)) {
-            return Result.failure(IllegalStateException("You already checked in today"))
-        }*/
 
         val hasText = !text.isNullOrBlank()
         val hasPhoto = photoUri != null
@@ -103,7 +101,6 @@ class ProofRepo {
             if (hasPhoto) points += PHOTO_BONUS
             if (hasLocation) points += LOCATION_BONUS
 
-            // Team bonus check — distinct members who already checked in today, before this one
             val todaySnapshot = db.collection("updates")
                 .whereEqualTo("challengeId", challengeId)
                 .whereGreaterThanOrEqualTo("createdAt", startOfTodayTimestamp())
@@ -112,9 +109,9 @@ class ProofRepo {
             val distinctTodayUserIds = todaySnapshot.documents
                 .mapNotNull { it.getString("userId") }
                 .toSet()
-            val teamBonusApplies = distinctTodayUserIds.isNotEmpty() // someone else already checked in today so a bonus
-            if (teamBonusApplies) points += TEAM_BONUS
+            if (distinctTodayUserIds.isNotEmpty()) points += TEAM_BONUS
 
+            val now = Timestamp.now()
             val update = ProofModel(
                 challengeId = challengeId,
                 userId = userId,
@@ -128,15 +125,17 @@ class ProofRepo {
                 y = yAxis,
                 x = xAxis,
                 pointsAwarded = points,
-                createdAt = Timestamp.now()
+                createdAt = now
             )
-            db.collection("updates").add(update).await()
+
+            val docRef = db.collection("updates").add(update).await()
+            val savedUpdate = update.copy(id = docRef.id)
 
             db.collection("challenges").document(challengeId)
                 .update("memberPoints.$userId", FieldValue.increment(points))
                 .await()
 
-            Result.success(points)
+            Result.success(savedUpdate)
         } catch (e: Exception) {
             Result.failure(e)
         }
