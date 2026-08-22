@@ -2,6 +2,10 @@ package com.course.challengeme.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -32,53 +36,69 @@ fun JoinViaCode(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(AppBackground)
-            .padding(horizontal = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .statusBarsPadding()
     ) {
-        Text("Join a Challenge", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = AppText)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            "Enter the invite code a friend shared with you",
-            fontSize = 14.sp,
-            color = AppText.copy(alpha = 0.6f)
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        TextField(
-            value = code,
-            onValueChange = { code = it.uppercase() },
-            label = "Invite code"
-        )
-
-        errorMessage?.let {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = it, color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = AppText)
+            }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text("Join a Challenge", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = AppText)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                "Enter the invite code a friend shared with you",
+                fontSize = 14.sp,
+                color = AppText.copy(alpha = 0.6f)
+            )
 
-        PrimaryButton(
-            text = "Join",
-            isLoading = isLoading,
-            enabled = code.isNotBlank(),
-            onClick = {
-                coroutineScope.launch {
-                    isLoading = true
-                    errorMessage = null
-                    challengeRepository.joinChallengeViaCode(code)
-                        .onSuccess { challengeId ->
-                            navController.navigate(Navigation.ChallengePage.createRoute(challengeId)) {
-                                popUpTo(Navigation.Home.route)
-                            }
-                        }
-                        .onFailure {
-                            errorMessage = it.localizedMessage ?: "Couldn't join challenge"
-                        }
-                    isLoading = false
-                }
+            Spacer(modifier = Modifier.height(32.dp))
+
+            TextField(
+                value = code,
+                onValueChange = { code = it.uppercase() },
+                label = "Invite code"
+            )
+
+            errorMessage?.let {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = it, color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
             }
-        )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            PrimaryButton(
+                text = "Join",
+                isLoading = isLoading,
+                enabled = code.isNotBlank(),
+                onClick = {
+                    coroutineScope.launch {
+                        isLoading = true
+                        errorMessage = null
+                        challengeRepository.joinChallengeViaCode(code)
+                            .onSuccess { challengeId ->
+                                navController.navigate(Navigation.ChallengePage.createRoute(challengeId)) {
+                                    popUpTo(Navigation.Home.route)
+                                }
+                            }
+                            .onFailure {
+                                errorMessage = it.localizedMessage ?: "Couldn't join challenge"
+                            }
+                        isLoading = false
+                    }
+                }
+            )
+        }
     }
 }

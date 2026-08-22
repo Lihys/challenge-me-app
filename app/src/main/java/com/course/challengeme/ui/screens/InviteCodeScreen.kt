@@ -2,6 +2,8 @@ package com.course.challengeme.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -39,53 +41,69 @@ fun InviteCodeScreen(navController: NavController, challengeId: String?) {
         modifier = Modifier
             .fillMaxSize()
             .background(AppBackground)
-            .padding(horizontal = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .statusBarsPadding()
     ) {
-        Text("Share this code so friends can join!", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = AppText)
-        //Spacer(modifier = Modifier.height(8.dp))
-       /* Text(
-            "Share this code so friends can join",
-            fontSize = 14.sp,
-            color = AppText.copy(alpha = 0.6f)
-        )*/
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        if (isLoading) {
-            CircularProgressIndicator(color = ButtonDark)
-        } else {
-            Text(
-                text = inviteCode ?: "—",
-                fontSize = 40.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 8.sp,
-                color = ButtonDark
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            OutlinedButton(
-                onClick = {
-                    inviteCode?.let {
-                        clipboardManager.setText(AnnotatedString(it))
-                    }
-                }
-            ) {
-                Text("Copy code", color = AppText)
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = AppText)
             }
         }
 
-        Spacer(modifier = Modifier.height(48.dp))
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text("Share this code so friends can join!", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = AppText)
+            //Spacer(modifier = Modifier.height(8.dp))
+            /* Text(
+                 "Share this code so friends can join",
+                 fontSize = 14.sp,
+                 color = AppText.copy(alpha = 0.6f)
+             )*/
 
-        PrimaryButton(
-            text = "Go to Home",
-            onClick = {
-                navController.navigate(Navigation.Home.route) {
-                    popUpTo(Navigation.Home.route) { inclusive = true }
+            Spacer(modifier = Modifier.height(40.dp))
+
+            if (isLoading) {
+                CircularProgressIndicator(color = ButtonDark)
+            } else {
+                Text(
+                    text = inviteCode ?: "—",
+                    fontSize = 40.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 8.sp,
+                    color = ButtonDark
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                OutlinedButton(
+                    onClick = {
+                        inviteCode?.let {
+                            clipboardManager.setText(AnnotatedString(it))
+                        }
+                    }
+                ) {
+                    Text("Copy code", color = AppText)
                 }
             }
-        )
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            PrimaryButton(
+                text = "Go to Home",
+                onClick = {
+                    navController.navigate(Navigation.Home.route) {
+                        popUpTo(Navigation.Home.route) { inclusive = true }
+                    }
+                }
+            )
+        }
     }
 }
