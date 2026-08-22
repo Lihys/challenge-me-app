@@ -59,6 +59,23 @@ import com.google.firebase.Timestamp
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.text.style.TextOverflow
 
+//team bonus feature
+import com.course.challengeme.data.TeamBonusModel
+import com.course.challengeme.ui.components.TeamBonusBanner
+
+// Merges real check-ins and the (at most one) live team-bonus row into a
+// single sorted feed. The bonus row's sortSeconds comes from its own
+// updatedAt, which is bumped every time it changes, so it naturally slides
+// to sit above the newest check-in without any check-in needing edits.
+private sealed class FeedItem {
+    abstract val sortSeconds: Long
+    data class Checkin(val proof: ProofModel) : FeedItem() {
+        override val sortSeconds get() = proof.createdAt?.seconds ?: 0L
+    }
+    data class Bonus(val bonus: TeamBonusModel) : FeedItem() {
+        override val sortSeconds get() = bonus.updatedAt?.seconds ?: 0L
+    }
+}
 
 @SuppressLint("MissingPermission")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,12 +108,13 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
     var isDescriptionExpanded by remember { mutableStateOf(false) }
 
     var isDescriptionCutOff by remember { mutableStateOf(false) }
-
+    var dailyBonus by remember { mutableStateOf<TeamBonusModel?>(null) }
 
     suspend fun loadEverything(id: String) = coroutineScope {
         val challengeDeferred = async { challengeRepository.getChallenge(id) }
         val updatesDeferred = async { updateRepository.getRecentUpdates(id) }
         val weeklyDeferred = async { updateRepository.getWeeklyLeaderboard(id) }
+        val bonusDeferred = async { updateRepository.getTeamBonus(id) }
 
         challengeDeferred.await()
             .onSuccess { c ->
@@ -121,6 +139,9 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
             .onFailure { errorMessage = it.localizedMessage ?: "Couldn't load challenge" }
 
         updatesDeferred.await().onSuccess { recentUpdates = it }
+
+        bonusDeferred.await().onSuccess { dailyBonus = it }
+
     }
 
     LaunchedEffect(challengeId) {
@@ -275,11 +296,31 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                             Spacer(modifier = Modifier.height(12.dp))
                         }
 
-                        items(recentUpdates) { update ->
-                            CheckIn(
-                                update = update,
-                                memberName = memberNames[update.userId] ?: "Unknown"
-                            )
+                        item {
+                            val feedItems = remember(recentUpdates, dailyBonus) {
+                                val items = mutableListOf<FeedItem>()
+                                items += recentUpdates.map { FeedItem.Checkin(it) }
+                                dailyBonus?.takeIf { it.checkedInMemberIds.size >= 2 }?.let { items += FeedItem.Bonus(it) }
+                                items.sortedWith(
+                                    compareByDescending<FeedItem> { it.sortSeconds }
+                                        .thenByDescending { it is FeedItem.Bonus } // ties go to the bonus row, so it sits above
+                                )
+                            }
+
+                            Column {
+                                feedItems.forEach { item ->
+                                    when (item) {
+                                        is FeedItem.Checkin -> CheckIn(
+                                            update = item.proof,
+                                            memberName = memberNames[item.proof.userId] ?: "Unknown"
+                                        )
+                                        is FeedItem.Bonus -> TeamBonusBanner(
+                                            memberCount = item.bonus.checkedInMemberIds.size,
+                                            bonusPoints = ProofRepo.TEAM_BONUS
+                                        )
+                                    }
+                                }
+                            }
                         }
 
                         item { Spacer(modifier = Modifier.height(12.dp)) }
@@ -381,7 +422,7 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                                     attachedPhotoUri = null
                                     attachedLocation = null
 
-                                    // write for real in the background, but also add the look locally so it will actually appear idk how to fix
+                                    // write fr in the background, but also add the look locally so it will actually appear idk how to fix
                                     isSubmitting = true
                                     coroutineScope.launch {
                                         updateRepository.submitProof(
@@ -399,6 +440,11 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                                                     c.copy(memberPoints = c.memberPoints + (myId to ((c.memberPoints[myId] ?: 0L) + delta)))
                                                 }
                                             }
+
+                                            // Pick up the team bonus (and any credit to other members) without a full reload
+                                            challengeRepository.getChallenge(challengeId).onSuccess { fresh -> challenge = fresh }
+                                            updateRepository.getTeamBonus(challengeId).onSuccess { bonus -> dailyBonus = bonus }
+
                                         }.onFailure {
                                             recentUpdates = recentUpdates.filterNot { it.id == tempId }
                                             challenge = challenge?.let { c ->
