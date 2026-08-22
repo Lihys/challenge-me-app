@@ -2,6 +2,8 @@ package com.course.challengeme.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -45,70 +47,86 @@ fun NewChallengeScreen(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(AppBackground)
-            .padding(horizontal = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .statusBarsPadding()
     ) {
-        Text("New Challenge", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = AppText)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            "Set the goal, the deadline, and what's on the line",
-            fontSize = 14.sp,
-            color = AppText.copy(alpha = 0.6f)
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        TextField(value = title, onValueChange = {
-            title = it
-        }, label = "Challenge name")
-        Spacer(modifier = Modifier.height(12.dp))
-        TextField(value = prize, onValueChange = { prize = it }, label = "Prize (optional)")
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedButton(
-            onClick = { showDatePicker = true },
-            modifier = Modifier.fillMaxWidth()
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(dateLabel, color = AppText)
-        }
-
-        errorMessage?.let {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = it, color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        PrimaryButton(
-            text = "Create Challenge",
-            isLoading = isLoading,
-            enabled = title.isNotBlank() && selectedDateMillis != null,
-            onClick = {
-                val endDate = selectedDateMillis?.let { Timestamp(it / 1000, 0) }
-                if (endDate == null) {
-                    errorMessage = "Please select an end date"
-                    return@PrimaryButton
-                }
-                coroutineScope.launch {
-                    isLoading = true
-                    errorMessage = null
-                    ChallengeCreationService.createChallenge(
-                        title = title,
-                        prize = prize.ifBlank { null },
-                        endDate = endDate
-                    ).onSuccess { challengeId ->
-                        navController.navigate(Navigation.InviteCode.createRoute(challengeId)) {
-                            popUpTo(Navigation.Home.route)
-                        }
-                    }.onFailure {
-                        errorMessage = it.localizedMessage ?: "Couldn't create challenge"
-                    }
-                    isLoading = false
-                }
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = AppText)
             }
-        )
+        }
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text("New Challenge", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = AppText)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                "Set the goal, the deadline, and what the prize is",
+                fontSize = 14.sp,
+                color = AppText.copy(alpha = 0.6f)
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            TextField(value = title, onValueChange = {
+                title = it
+            }, label = "Challenge name")
+            Spacer(modifier = Modifier.height(12.dp))
+            TextField(value = prize, onValueChange = { prize = it }, label = "Prize (optional)")
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedButton(
+                onClick = { showDatePicker = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(dateLabel, color = AppText)
+            }
+
+            errorMessage?.let {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = it, color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            PrimaryButton(
+                text = "Create Challenge",
+                isLoading = isLoading,
+                enabled = title.isNotBlank() && selectedDateMillis != null,
+                onClick = {
+                    val endDate = selectedDateMillis?.let { Timestamp(it / 1000, 0) }
+                    if (endDate == null) {
+                        errorMessage = "Please select an end date"
+                        return@PrimaryButton
+                    }
+                    coroutineScope.launch {
+                        isLoading = true
+                        errorMessage = null
+                        ChallengeCreationService.createChallenge(
+                            title = title,
+                            prize = prize.ifBlank { null },
+                            endDate = endDate
+                        ).onSuccess { challengeId ->
+                            navController.navigate(Navigation.InviteCode.createRoute(challengeId)) {
+                                popUpTo(Navigation.Home.route)
+                            }
+                        }.onFailure {
+                            errorMessage = it.localizedMessage ?: "Couldn't create challenge"
+                        }
+                        isLoading = false
+                    }
+                }
+            )
+        }
     }
 
     if (showDatePicker) {

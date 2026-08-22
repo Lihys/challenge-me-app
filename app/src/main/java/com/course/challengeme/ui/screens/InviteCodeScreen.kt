@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 //import androidx.compose.ui.text.letterSpacing
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,7 +61,11 @@ fun InviteCodeScreen(navController: NavController, challengeId: String?) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("Share this code so friends can join!", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = AppText)
+            Text("Share this code so friends can join!",
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                color = AppText,
+                textAlign = TextAlign.Center)
             //Spacer(modifier = Modifier.height(8.dp))
             /* Text(
                  "Share this code so friends can join",
