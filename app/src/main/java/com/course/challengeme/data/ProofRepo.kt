@@ -179,14 +179,30 @@ class ProofRepo {
     suspend fun getWeeklyLeaderboard(challengeId: String): Result<List<Pair<String, Long>>> {
         return try {
             val sevenDaysAgo = Timestamp(Date(System.currentTimeMillis() - 7L * 24 * 60 * 60 * 1000))
-            val snapshot = db.collection("updates")
+
+            val updatesSnapshot = db.collection("updates")
                 .whereEqualTo("challengeId", challengeId)
                 .whereGreaterThanOrEqualTo("createdAt", sevenDaysAgo)
                 .get()
                 .await()
-            val updates = snapshot.documents.mapNotNull { it.toObject(ProofModel::class.java) }
+            val updates = updatesSnapshot.documents.mapNotNull { it.toObject(ProofModel::class.java) }
             val totals = updates.groupBy { it.userId }
                 .mapValues { (_, ups) -> ups.sumOf { it.pointsAwarded } }
+                .toMutableMap()
+
+            val bonusSnapshot = db.collection("challenges").document(challengeId)
+                .collection("dailyBonuses")
+                .whereGreaterThanOrEqualTo("updatedAt", sevenDaysAgo)
+                .get()
+                .await()
+            bonusSnapshot.documents
+                .mapNotNull { it.toObject(TeamBonusModel::class.java) }
+                .forEach { bonus ->
+                    bonus.bonusAwardedMemberIds.forEach { memberId ->
+                        totals[memberId] = (totals[memberId] ?: 0L) + TEAM_BONUS
+                    }
+                }
+
             Result.success(totals.entries.sortedByDescending { it.value }.map { it.key to it.value })
         } catch (e: Exception) {
             Result.failure(e)
@@ -212,7 +228,7 @@ class ProofRepo {
      * if more than 2 members checked in, each user that checks in gets the bonus
      * already awarded members are skipped so it doesn't matter that we call it again and again
      */
-     suspend fun applyTeamBonus(challengeId: String, userId: String): Result<TeamBonusModel> {
+     private suspend fun applyTeamBonus(challengeId: String, userId: String): Result<TeamBonusModel> {
         return try {
             val dateKey = todayDateKey()
             val bonusRef = db.collection("challenges").document(challengeId)
