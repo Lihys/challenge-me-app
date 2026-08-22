@@ -37,6 +37,7 @@ import com.course.challengeme.ui.components.TextField
 import com.course.challengeme.ui.components.CheckIn
 import com.course.challengeme.ui.components.LeaderboardPodium
 import com.course.challengeme.ui.components.LeaderboardToggle
+import com.course.challengeme.ui.components.CelebrationScreen
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.ButtonDark
@@ -45,6 +46,7 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
@@ -82,6 +84,7 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
     var attachedLocation by remember { mutableStateOf<Pair<Double, Double>?>(null) }
     var isSubmitting by remember { mutableStateOf(false) }
     var submitError by remember { mutableStateOf<String?>(null) }
+    var showCheckInHistory by remember { mutableStateOf(false) }
 
 
     suspend fun loadEverything(id: String) = coroutineScope {
@@ -156,6 +159,16 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                 val dateLabel = c.endDate?.toDate()?.let {
                     SimpleDateFormat("MMM d", Locale.getDefault()).format(it)
                 } ?: "no end date"
+                val isCompleted = c.endDate?.let { it < Timestamp.now() } ?: false
+
+                if (isCompleted && !showCheckInHistory) {
+                    CelebrationScreen(
+                        winnerName = totalEntries.firstOrNull()?.name ?: "Someone",
+                        onSeePastCheckIns = { showCheckInHistory = true },
+                        onBack = { navController.popBackStack() }
+                    )
+                    return@Box
+                }
 
                 Column(modifier = Modifier.fillMaxSize()) {
                     // Header
@@ -228,133 +241,135 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                         item { Spacer(modifier = Modifier.height(12.dp)) }
                     }
 
-                    // Inline composer
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(AppBackground)
-                            .padding(16.dp)
-                    ) {
-                        submitError?.let {
-                            Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                            Spacer(modifier = Modifier.height(6.dp))
-                        }
+                    if (!isCompleted) {
+                        // Inline composer
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(AppBackground)
+                                .padding(16.dp)
+                        ) {
+                            submitError?.let {
+                                Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                                Spacer(modifier = Modifier.height(6.dp))
+                            }
 
-                        TextField(
-                            value = checkInText,
-                            onValueChange = { checkInText = it },
-                            label = "I did the challenge today..."
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            FilterChip(
-                                selected = false,
-                                onClick = {},
-                                label = { Text("text +10", fontSize = 12.sp) }
+                            TextField(
+                                value = checkInText,
+                                onValueChange = { checkInText = it },
+                                label = "I did the challenge today..."
                             )
-                            FilterChip(
-                                selected = attachedPhotoUri != null,
-                                onClick = { imagePicker.launch("image/*") },
-                                label = { Text(if (attachedPhotoUri != null) "Photo ✓" else "Photo +5", fontSize = 12.sp) },
-                                leadingIcon = { Icon(Icons.Default.CameraAlt, contentDescription = null, modifier = Modifier.size(14.dp)) }
-                            )
-                            FilterChip(
-                                selected = attachedLocation != null,
-                                onClick = { locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION) },
-                                label = { Text(if (attachedLocation != null) "GPS ✓" else "GPS +5", fontSize = 12.sp) },
-                                leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(14.dp)) }
-                            )
-                        }
 
-                        attachedPhotoUri?.let { uri ->
                             Spacer(modifier = Modifier.height(8.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                AsyncImage(
-                                    model = uri,
-                                    contentDescription = "Attached photo",
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .size(56.dp)
-                                        .clip(RoundedCornerShape(12.dp))
+
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                FilterChip(
+                                    selected = false,
+                                    onClick = {},
+                                    label = { Text("text +10", fontSize = 12.sp) }
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                TextButton(onClick = { attachedPhotoUri = null }) {
-                                    Text("Remove", color = ButtonDark, fontSize = 12.sp)
+                                FilterChip(
+                                    selected = attachedPhotoUri != null,
+                                    onClick = { imagePicker.launch("image/*") },
+                                    label = { Text(if (attachedPhotoUri != null) "Photo ✓" else "Photo +5", fontSize = 12.sp) },
+                                    leadingIcon = { Icon(Icons.Default.CameraAlt, contentDescription = null, modifier = Modifier.size(14.dp)) }
+                                )
+                                FilterChip(
+                                    selected = attachedLocation != null,
+                                    onClick = { locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION) },
+                                    label = { Text(if (attachedLocation != null) "GPS ✓" else "GPS +5", fontSize = 12.sp) },
+                                    leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(14.dp)) }
+                                )
+                            }
+
+                            attachedPhotoUri?.let { uri ->
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    AsyncImage(
+                                        model = uri,
+                                        contentDescription = "Attached photo",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(56.dp)
+                                            .clip(RoundedCornerShape(12.dp))
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    TextButton(onClick = { attachedPhotoUri = null }) {
+                                        Text("Remove", color = ButtonDark, fontSize = 12.sp)
+                                    }
                                 }
                             }
-                        }
 
-                        Spacer(modifier = Modifier.height(12.dp))
+                            Spacer(modifier = Modifier.height(12.dp))
 
-                        Button(
-                            onClick = {
-                                if (challengeId == null) return@Button
-                                val myId = currentUserId ?: return@Button
+                            Button(
+                                onClick = {
+                                    if (challengeId == null) return@Button
+                                    val myId = currentUserId ?: return@Button
 
-                                val text = checkInText.ifBlank { null }
-                                val photoUri = attachedPhotoUri
-                                val location = attachedLocation
+                                    val text = checkInText.ifBlank { null }
+                                    val photoUri = attachedPhotoUri
+                                    val location = attachedLocation
 
-                                var estimatedPoints = ProofRepo.BASE_POINTS
-                                if (photoUri != null) estimatedPoints += ProofRepo.PHOTO_BONUS
-                                if (location != null) estimatedPoints += ProofRepo.LOCATION_BONUS
+                                    var estimatedPoints = ProofRepo.BASE_POINTS
+                                    if (photoUri != null) estimatedPoints += ProofRepo.PHOTO_BONUS
+                                    if (location != null) estimatedPoints += ProofRepo.LOCATION_BONUS
 
-                                val tempId = "pending-${UUID.randomUUID()}"
-                                val optimisticUpdate = ProofModel(
-                                    id = tempId,
-                                    challengeId = challengeId,
-                                    userId = myId,
-                                    textContent = text,
-                                    photoUrl = photoUri?.toString(), // Coil can render a local content:// uri directly
-                                    y = location?.first,
-                                    x = location?.second,
-                                    pointsAwarded = estimatedPoints,
-                                    createdAt = Timestamp.now()
-                                )
-
-                                // Show it right now — no network wait
-                                recentUpdates = listOf(optimisticUpdate) + recentUpdates
-                                challenge = challenge?.let { c ->
-                                    c.copy(memberPoints = c.memberPoints + (myId to ((c.memberPoints[myId] ?: 0L) + estimatedPoints)))
-                                }
-                                checkInText = ""
-                                attachedPhotoUri = null
-                                attachedLocation = null
-
-                                // Do the real write in the background; reconcile once it lands
-                                isSubmitting = true
-                                coroutineScope.launch {
-                                    updateRepository.submitProof(
+                                    val tempId = "pending-${UUID.randomUUID()}"
+                                    val optimisticUpdate = ProofModel(
+                                        id = tempId,
                                         challengeId = challengeId,
-                                        context = context,
-                                        text = text,
-                                        photoUri = photoUri,
-                                        yAxis = location?.first,
-                                        xAxis = location?.second
-                                    ).onSuccess { savedUpdate ->
-                                        recentUpdates = recentUpdates.map { if (it.id == tempId) savedUpdate else it }
-                                        val delta = savedUpdate.pointsAwarded - estimatedPoints
-                                        if (delta != 0L) {
-                                            challenge = challenge?.let { c ->
-                                                c.copy(memberPoints = c.memberPoints + (myId to ((c.memberPoints[myId] ?: 0L) + delta)))
-                                            }
-                                        }
-                                    }.onFailure {
-                                        recentUpdates = recentUpdates.filterNot { it.id == tempId }
-                                        challenge = challenge?.let { c ->
-                                            c.copy(memberPoints = c.memberPoints + (myId to ((c.memberPoints[myId] ?: 0L) - estimatedPoints)))
-                                        }
-                                        submitError = it.localizedMessage ?: "Couldn't post update"
+                                        userId = myId,
+                                        textContent = text,
+                                        photoUrl = photoUri?.toString(), // Coil can render a local content:// uri directly
+                                        y = location?.first,
+                                        x = location?.second,
+                                        pointsAwarded = estimatedPoints,
+                                        createdAt = Timestamp.now()
+                                    )
+
+                                    // Show it right now — no network wait
+                                    recentUpdates = listOf(optimisticUpdate) + recentUpdates
+                                    challenge = challenge?.let { c ->
+                                        c.copy(memberPoints = c.memberPoints + (myId to ((c.memberPoints[myId] ?: 0L) + estimatedPoints)))
                                     }
-                                    isSubmitting = false
-                                }
-                            },
-                            enabled = !isSubmitting,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(if (isSubmitting) "Posting..." else "Post update")
+                                    checkInText = ""
+                                    attachedPhotoUri = null
+                                    attachedLocation = null
+
+                                    // Do the real write in the background; reconcile once it lands
+                                    isSubmitting = true
+                                    coroutineScope.launch {
+                                        updateRepository.submitProof(
+                                            challengeId = challengeId,
+                                            context = context,
+                                            text = text,
+                                            photoUri = photoUri,
+                                            yAxis = location?.first,
+                                            xAxis = location?.second
+                                        ).onSuccess { savedUpdate ->
+                                            recentUpdates = recentUpdates.map { if (it.id == tempId) savedUpdate else it }
+                                            val delta = savedUpdate.pointsAwarded - estimatedPoints
+                                            if (delta != 0L) {
+                                                challenge = challenge?.let { c ->
+                                                    c.copy(memberPoints = c.memberPoints + (myId to ((c.memberPoints[myId] ?: 0L) + delta)))
+                                                }
+                                            }
+                                        }.onFailure {
+                                            recentUpdates = recentUpdates.filterNot { it.id == tempId }
+                                            challenge = challenge?.let { c ->
+                                                c.copy(memberPoints = c.memberPoints + (myId to ((c.memberPoints[myId] ?: 0L) - estimatedPoints)))
+                                            }
+                                            submitError = it.localizedMessage ?: "Couldn't post update"
+                                        }
+                                        isSubmitting = false
+                                    }
+                                },
+                                enabled = !isSubmitting,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(if (isSubmitting) "Posting..." else "Post update")
+                            }
                         }
                     }
                 }

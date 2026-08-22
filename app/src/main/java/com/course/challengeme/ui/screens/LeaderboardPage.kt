@@ -77,6 +77,7 @@ fun LeaderboardPage(navController: NavController, challengeId: String?) {
         modifier = Modifier
             .fillMaxSize()
             .background(AppBackground)
+            .statusBarsPadding()
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
