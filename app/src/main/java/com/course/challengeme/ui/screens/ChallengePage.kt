@@ -46,7 +46,6 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
@@ -59,7 +58,6 @@ import com.google.firebase.Timestamp
 
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.TextLayoutResult
 
 
 @SuppressLint("MissingPermission")
@@ -92,7 +90,7 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
     var showCheckInHistory by remember { mutableStateOf(false) }
     var isDescriptionExpanded by remember { mutableStateOf(false) }
 
-    var isDescriptionTruncated by remember { mutableStateOf(false) }
+    var isDescriptionCutOff by remember { mutableStateOf(false) }
 
 
     suspend fun loadEverything(id: String) = coroutineScope {
@@ -232,11 +230,11 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                                     overflow = TextOverflow.Ellipsis,
                                     onTextLayout = { result ->
                                         if (!isDescriptionExpanded) {
-                                            isDescriptionTruncated = result.hasVisualOverflow
+                                            isDescriptionCutOff = result.hasVisualOverflow
                                         }
                                     }
                                 )
-                                if (isDescriptionTruncated || isDescriptionExpanded) {
+                                if (isDescriptionCutOff || isDescriptionExpanded) {
                                     Text(
                                         text = if (isDescriptionExpanded) "Hide description" else "See description",
                                         fontSize = 12.sp,
