@@ -43,13 +43,13 @@ fun InviteCodeScreen(navController: NavController, challengeId: String?) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("You're all set!", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = AppText)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
+        Text("Share this code so friends can join!", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = AppText)
+        //Spacer(modifier = Modifier.height(8.dp))
+       /* Text(
             "Share this code so friends can join",
             fontSize = 14.sp,
             color = AppText.copy(alpha = 0.6f)
-        )
+        )*/
 
         Spacer(modifier = Modifier.height(40.dp))
 
