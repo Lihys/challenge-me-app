@@ -39,6 +39,8 @@ fun NewChallengeScreen(navController: NavController) {
     val ChallengeCreationService = remember { ChallengeRepo() }
     val coroutineScope = rememberCoroutineScope()
 
+    var description by remember { mutableStateOf("") }
+
     val dateLabel = selectedDateMillis?.let {
         SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(it)
     } ?: "Select an end date"
@@ -83,6 +85,9 @@ fun NewChallengeScreen(navController: NavController) {
             TextField(value = prize, onValueChange = { prize = it }, label = "Prize (optional)")
 
             Spacer(modifier = Modifier.height(12.dp))
+            TextField(value = description, onValueChange = { description = it }, label = "Description / challenge rules (optional)")
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedButton(
                 onClick = { showDatePicker = true },
@@ -113,6 +118,7 @@ fun NewChallengeScreen(navController: NavController) {
                         errorMessage = null
                         ChallengeCreationService.createChallenge(
                             title = title,
+                            description = description.ifBlank { null },
                             prize = prize.ifBlank { null },
                             endDate = endDate
                         ).onSuccess { challengeId ->

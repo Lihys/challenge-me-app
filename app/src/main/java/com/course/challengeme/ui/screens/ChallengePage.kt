@@ -57,6 +57,10 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.async
 import com.google.firebase.Timestamp
 
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.text.style.TextOverflow
+
+
 @SuppressLint("MissingPermission")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,13 +82,14 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    // Composer state
+    // Composer state-to check
     var checkInText by remember { mutableStateOf("") }
     var attachedPhotoUri by remember { mutableStateOf<Uri?>(null) }
     var attachedLocation by remember { mutableStateOf<Pair<Double, Double>?>(null) }
     var isSubmitting by remember { mutableStateOf(false) }
     var submitError by remember { mutableStateOf<String?>(null) }
     var showCheckInHistory by remember { mutableStateOf(false) }
+    var isDescriptionExpanded by remember { mutableStateOf(false) }
 
 
     suspend fun loadEverything(id: String) = coroutineScope {
@@ -213,7 +218,29 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Text(c.title, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = AppText)
+
+                            c.description?.takeIf { it.isNotBlank() }?.let { desc ->
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = desc,
+                                    fontSize = 13.sp,
+                                    color = AppText.copy(alpha = 0.7f),
+                                    maxLines = if (isDescriptionExpanded) Int.MAX_VALUE else 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = if (isDescriptionExpanded) "Hide description" else "See description",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = ButtonDark,
+                                    modifier = Modifier
+                                        .padding(top = 2.dp)
+                                        .clickable { isDescriptionExpanded = !isDescriptionExpanded }
+                                )
+                            }
+
                             Spacer(modifier = Modifier.height(4.dp))
+
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,

@@ -12,6 +12,7 @@ class ChallengeRepo {
 
     suspend fun createChallenge(
         title: String,
+        description: String?,
         prize: String?,
         endDate: Timestamp
     ): Result<String> {
@@ -23,6 +24,7 @@ class ChallengeRepo {
 
             val challenge = ChallengeModel(
                 title = title,
+                description = description,
                 prize = prize,
                 endDate = endDate,
                 inviteCode = inviteCode,
@@ -39,6 +41,7 @@ class ChallengeRepo {
             Result.failure(e)
         }
     }
+
     suspend fun getChallenge(challengeId: String): Result<ChallengeModel> {
         return try {
             val snapshot = db.collection("challenges").document(challengeId).get().await()
@@ -50,7 +53,7 @@ class ChallengeRepo {
         }
     }
     private fun generateInviteCode(): String {
-        val chars = "ABCDEFGHIJLKLMNPQRSTUVWXYZ123456789" // 0 and o are confusing so we use the others
+        val chars = "ABCDEFGHIJLKLMNPQRSTUVWXYZ123456789" // 0 and o are confusing so we use the others :)
         return (1..6).map { chars.random() }.joinToString("")
     }
 
@@ -102,20 +105,9 @@ class ChallengeRepo {
     }
 
     /**
-     * Decides + persists the winner exactly once, the first time anyone opens
-     * an expired challenge. Runs as a Firestore transaction so two devices
-     * racing to claim the same win can't both succeed — only one write wins,
-     * and the +1 to the winner's "wins" counter happens atomically alongside
-     * setting challenges/{id}.winnerId, so there's no way to double-count.
-     *
-     * Safe to call every time an expired challenge is opened: if winnerId is
-     * already set, this just returns it without writing anything again.
-     *
-     * Note: this only runs when a client happens to open the challenge after
-     * it ends — there's no server-side job, so if nobody ever reopens a
-     * finished challenge, its win is never recorded. Fine for now; if you
-     * want this to be exact and timely regardless of whether anyone looks,
-     * that needs a scheduled Cloud Function instead.
+     * if winnerId is already set, we don't add anything,
+     * but basically this only runs when a user opens the challenge after it ends ...
+     * then it adds a win to the winner
      */
     suspend fun claimWinIfNeeded(challengeId: String): Result<String?> {
         return try {
@@ -132,12 +124,12 @@ class ChallengeRepo {
 
                 val endDate = challenge.endDate
                 if (endDate == null || endDate > Timestamp.now()) {
-                    return@runTransaction null // not actually over yet
+                    return@runTransaction null // not over yet
                 }
 
                 val winner = challenge.memberIds
                     .maxByOrNull { challenge.memberPoints[it] ?: 0L }
-                    ?: return@runTransaction null // no members to award
+                    ?: return@runTransaction null // no winner
 
                 transaction.update(challengeRef, "winnerId", winner)
 

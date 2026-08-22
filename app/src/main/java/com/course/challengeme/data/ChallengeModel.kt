@@ -5,6 +5,7 @@ import com.google.firebase.Timestamp
 data class ChallengeModel(
     val id: String = "",
     val title: String = "",
+    val description: String? = null,
     val prize: String? = null,
     val endDate: Timestamp? = null,
     val inviteCode: String = "",
