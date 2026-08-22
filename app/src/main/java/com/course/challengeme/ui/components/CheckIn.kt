@@ -1,11 +1,14 @@
 package com.course.challengeme.ui.components
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Photo
+//import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -15,8 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.course.challengeme.data.ProofModel
@@ -37,6 +42,7 @@ import coil.compose.AsyncImage
 
 @Composable
 fun CheckIn(update: ProofModel, memberName: String, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
     val date = update.createdAt?.toDate()
     val today = Calendar.getInstance()
     val updateDay = Calendar.getInstance().apply { date?.let { time = it } }
@@ -106,11 +112,23 @@ fun CheckIn(update: ProofModel, memberName: String, modifier: Modifier = Modifie
 
                 if (update.y != null && update.x != null) {
                     Spacer(modifier = Modifier.height(6.dp))
+                    val lat = update.y
+                    val lng = update.x
+                    val displayName = update.locationName ?: "Location shared"
+
                     AssistChip(
-                        onClick = {},
-                        label = { Text("Location", fontSize = 11.sp) },
+                        onClick = { openInMaps(context, lat, lng, displayName) },
+                        label = {
+                            Text(
+                                displayName,
+                                fontSize = 11.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
                         leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(14.dp)) },
-                        colors = AssistChipDefaults.assistChipColors(containerColor = AppBackground)
+                        colors = AssistChipDefaults.assistChipColors(containerColor = AppBackground),
+                        modifier = Modifier.widthIn(max = 170.dp)
                     )
                 }
             }
@@ -118,5 +136,20 @@ fun CheckIn(update: ProofModel, memberName: String, modifier: Modifier = Modifie
 
         Spacer(modifier = Modifier.height(12.dp))
         HorizontalDivider(color = AppText.copy(alpha = 0.08f))
+    }
+}
+
+/**
+ * Opens the location in a maps app that is installed.
+ * if it doesnt we fall back to a browser Google Maps link
+ */
+private fun openInMaps(context: android.content.Context, lat: Double, lng: Double, label: String) {
+    val geoUri = Uri.parse("geo:$lat,$lng?q=$lat,$lng(${Uri.encode(label)})")
+    val geoIntent = Intent(Intent.ACTION_VIEW, geoUri)
+    try {
+        context.startActivity(geoIntent)
+    } catch (e: ActivityNotFoundException) {
+        val webUri = Uri.parse("https://maps.google.com/?q=$lat,$lng")
+        context.startActivity(Intent(Intent.ACTION_VIEW, webUri))
     }
 }

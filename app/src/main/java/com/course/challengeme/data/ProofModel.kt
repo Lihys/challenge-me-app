@@ -14,8 +14,10 @@ data class ProofModel(
     val x: Double? = null,
     val y: Double? = null,
 
+    // readable place names that we get at submit time!
+    // Null if the geo-coding thingy failed
+    val locationName: String? = null,
+
     val pointsAwarded: Long = 0,
     val createdAt: Timestamp? = null
 )
-
-
