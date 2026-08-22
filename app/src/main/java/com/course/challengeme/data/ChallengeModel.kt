@@ -11,5 +11,6 @@ data class ChallengeModel(
     val ownerId: String = "",
     val memberIds: List<String> = emptyList(),
     val memberPoints: Map<String, Long> = emptyMap(),
+    val winnerId: String? = null,
     val createdAt: Timestamp? = null
 )

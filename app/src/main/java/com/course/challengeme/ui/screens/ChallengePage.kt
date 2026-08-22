@@ -102,6 +102,15 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                 weeklyDeferred.await().onSuccess { weeklyPairs ->
                     weeklyEntries = buildLeaderboardEntries(c.memberIds, weeklyPairs.toMap(), names)
                 }
+
+                val isExpired = c.endDate?.let { it < Timestamp.now() } ?: false
+                if (isExpired && c.winnerId == null) {
+                    challengeRepository.claimWinIfNeeded(id).onSuccess { winnerId ->
+                        if (winnerId != null) {
+                            challenge = challenge?.copy(winnerId = winnerId)
+                        }
+                    }
+                }
             }
             .onFailure { errorMessage = it.localizedMessage ?: "Couldn't load challenge" }
 
@@ -163,7 +172,7 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
 
                 if (isCompleted && !showCheckInHistory) {
                     CelebrationScreen(
-                        winnerName = totalEntries.firstOrNull()?.name ?: "Someone",
+                        winnerName = memberNames[c.winnerId] ?: totalEntries.firstOrNull()?.name ?: "Someone",
                         onSeePastCheckIns = { showCheckInHistory = true },
                         onBack = { navController.popBackStack() }
                     )

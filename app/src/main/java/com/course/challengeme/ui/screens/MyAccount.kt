@@ -36,7 +36,8 @@ import kotlinx.coroutines.coroutineScope
 private data class AccountStats(
     val totalPoints: Long = 0,
     val checkIns: Int = 0,
-    val challenges: Int = 0
+    val challenges: Int = 0,
+    val challengesWon: Long = 0
 )
 
 @Composable
@@ -59,6 +60,7 @@ fun MyAccount(navController: NavController) {
                 val profileDeferred = async { userRepository.getUserProfile(userId) }
                 val challengesDeferred = async { challengeRepository.getChallengesForUser(userId) }
                 val checkInCountDeferred = async { proofRepository.getUpdateCountForUser(userId) }
+                val winsDeferred = async { userRepository.getWinsCount(userId) }
 
                 profileDeferred.await().onSuccess { (n, e) ->
                     name = n
@@ -67,13 +69,15 @@ fun MyAccount(navController: NavController) {
 
                 val challenges = challengesDeferred.await()
                 val checkInCount = checkInCountDeferred.await()
+                val wins = winsDeferred.await()
 
                 challenges.onSuccess { list ->
                     val totalPoints = list.sumOf { it.memberPoints[userId] ?: 0L }
                     stats = AccountStats(
                         totalPoints = totalPoints,
                         checkIns = checkInCount.getOrDefault(0),
-                        challenges = list.size
+                        challenges = list.size,
+                        challengesWon = wins.getOrDefault(0L)
                     )
                 }
             }
@@ -153,8 +157,8 @@ fun MyAccount(navController: NavController) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    StatCard("Weekly Wins", "—", Modifier.weight(1f))
-                    StatCard("Challenges Won", "—", Modifier.weight(1f))
+                    //StatCard("Weekly Wins", "—", Modifier.weight(1f))
+                    StatCard("Challenges Won", stats.challengesWon.toString(), Modifier.weight(1f))
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }

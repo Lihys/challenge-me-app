@@ -100,5 +100,57 @@ class ChallengeRepo {
             Result.failure(e)
         }
     }
-    
+
+    /**
+     * Decides + persists the winner exactly once, the first time anyone opens
+     * an expired challenge. Runs as a Firestore transaction so two devices
+     * racing to claim the same win can't both succeed — only one write wins,
+     * and the +1 to the winner's "wins" counter happens atomically alongside
+     * setting challenges/{id}.winnerId, so there's no way to double-count.
+     *
+     * Safe to call every time an expired challenge is opened: if winnerId is
+     * already set, this just returns it without writing anything again.
+     *
+     * Note: this only runs when a client happens to open the challenge after
+     * it ends — there's no server-side job, so if nobody ever reopens a
+     * finished challenge, its win is never recorded. Fine for now; if you
+     * want this to be exact and timely regardless of whether anyone looks,
+     * that needs a scheduled Cloud Function instead.
+     */
+    suspend fun claimWinIfNeeded(challengeId: String): Result<String?> {
+        return try {
+            val winnerId = db.runTransaction { transaction ->
+                val challengeRef = db.collection("challenges").document(challengeId)
+                val snapshot = transaction.get(challengeRef)
+                val challenge = snapshot.toObject(ChallengeModel::class.java)
+                    ?: throw IllegalStateException("Challenge not found")
+
+                val existingWinnerId = challenge.winnerId
+                if (existingWinnerId != null) {
+                    return@runTransaction existingWinnerId
+                }
+
+                val endDate = challenge.endDate
+                if (endDate == null || endDate > Timestamp.now()) {
+                    return@runTransaction null // not actually over yet
+                }
+
+                val winner = challenge.memberIds
+                    .maxByOrNull { challenge.memberPoints[it] ?: 0L }
+                    ?: return@runTransaction null // no members to award
+
+                transaction.update(challengeRef, "winnerId", winner)
+
+                val winnerRef = db.collection("users").document(winner)
+                transaction.update(winnerRef, "wins", FieldValue.increment(1))
+
+                winner
+            }.await()
+
+            Result.success(winnerId)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 }

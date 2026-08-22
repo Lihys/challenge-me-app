@@ -40,4 +40,17 @@ class UserRepo {
             Result.failure(e)
         }
     }
+
+    /**
+     * Number of challenges this user has won, per ChallengeRepo.claimWinIfNeeded.
+     * Defaults to 0 for users who haven't won anything yet (field won't exist yet).
+     */
+    suspend fun getWinsCount(userId: String): Result<Long> {
+        return try {
+            val doc = db.collection("users").document(userId).get().await()
+            Result.success(doc.getLong("wins") ?: 0L)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
