@@ -103,7 +103,7 @@ fun CheckIn(update: ProofModel, memberName: String, modifier: Modifier = Modifie
                         contentDescription = "Check-in photo",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .weight(1f)
                             .height(if (expanded) 260.dp else 140.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .clickable { expanded = !expanded }
