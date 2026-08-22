@@ -59,6 +59,7 @@ import com.google.firebase.Timestamp
 
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.TextLayoutResult
 
 
 @SuppressLint("MissingPermission")
@@ -90,6 +91,8 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
     var submitError by remember { mutableStateOf<String?>(null) }
     var showCheckInHistory by remember { mutableStateOf(false) }
     var isDescriptionExpanded by remember { mutableStateOf(false) }
+
+    var isDescriptionTruncated by remember { mutableStateOf(false) }
 
 
     suspend fun loadEverything(id: String) = coroutineScope {
@@ -226,19 +229,26 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                                     fontSize = 13.sp,
                                     color = AppText.copy(alpha = 0.7f),
                                     maxLines = if (isDescriptionExpanded) Int.MAX_VALUE else 2,
-                                    overflow = TextOverflow.Ellipsis
+                                    overflow = TextOverflow.Ellipsis,
+                                    onTextLayout = { result ->
+                                        if (!isDescriptionExpanded) {
+                                            isDescriptionTruncated = result.hasVisualOverflow
+                                        }
+                                    }
                                 )
-                                Text(
-                                    text = if (isDescriptionExpanded) "Hide description" else "See description",
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = ButtonDark,
-                                    modifier = Modifier
-                                        .padding(top = 2.dp)
-                                        .clickable { isDescriptionExpanded = !isDescriptionExpanded }
-                                )
+                                if (isDescriptionTruncated || isDescriptionExpanded) {
+                                    Text(
+                                        text = if (isDescriptionExpanded) "Hide description" else "See description",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = ButtonDark,
+                                        modifier = Modifier
+                                            .padding(top = 2.dp)
+                                            .clickable { isDescriptionExpanded = !isDescriptionExpanded }
+                                    )
+                                }
                             }
-
+                            //-----
                             Spacer(modifier = Modifier.height(4.dp))
 
                             Row(
@@ -357,14 +367,14 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                                         challengeId = challengeId,
                                         userId = myId,
                                         textContent = text,
-                                        photoUrl = photoUri?.toString(), // Coil can render a local content:// uri directly
+                                        photoUrl = photoUri?.toString(), // deals with local content directly
                                         y = location?.first,
                                         x = location?.second,
                                         pointsAwarded = estimatedPoints,
                                         createdAt = Timestamp.now()
                                     )
 
-                                    // Show it right now — no network wait
+                                    // Show it without waiting
                                     recentUpdates = listOf(optimisticUpdate) + recentUpdates
                                     challenge = challenge?.let { c ->
                                         c.copy(memberPoints = c.memberPoints + (myId to ((c.memberPoints[myId] ?: 0L) + estimatedPoints)))
@@ -373,7 +383,7 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                                     attachedPhotoUri = null
                                     attachedLocation = null
 
-                                    // Do the real write in the background; reconcile once it lands
+                                    // write for real in the background, but also add the look locally so it will actually appear idk how to fix
                                     isSubmitting = true
                                     coroutineScope.launch {
                                         updateRepository.submitProof(
