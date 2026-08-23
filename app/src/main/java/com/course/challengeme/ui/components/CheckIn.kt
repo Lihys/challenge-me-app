@@ -140,8 +140,8 @@ fun CheckIn(update: ProofModel, memberName: String, modifier: Modifier = Modifie
 }
 
 /**
- * Opens the location in a maps app that is installed.
- * if it doesnt we fall back to a browser Google Maps link
+ * Opens the location on a maps app if installed ofc
+ * if it doesnt, it opens on browser via google maps
  */
 private fun openInMaps(context: android.content.Context, lat: Double, lng: Double, label: String) {
     val geoUri = Uri.parse("geo:$lat,$lng?q=$lat,$lng(${Uri.encode(label)})")

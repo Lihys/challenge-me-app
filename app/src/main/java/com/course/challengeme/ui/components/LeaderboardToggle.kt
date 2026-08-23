@@ -21,9 +21,9 @@ import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.ButtonDark
 
 /**
- * "This Week" / "Total" segmented toggle. Shared by ChallengePage (podium only)
- * and LeaderboardPage (podium + full list) so both switch views identically.
- */
+ * This Week/Total  toggle
+ *
+ * */
 @Composable
 fun LeaderboardToggle(
     selected: LeaderboardMode,
