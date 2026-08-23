@@ -1,5 +1,4 @@
 package com.course.challengeme.ui.screens
-
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -141,7 +140,7 @@ fun MyAccount(navController: NavController) {
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
             ) {
-                // Avatar, name and email (can edit)
+                // Avatar, name and email
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -234,7 +233,7 @@ fun MyAccount(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Stats grid — 3 columns, 2 rows
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
