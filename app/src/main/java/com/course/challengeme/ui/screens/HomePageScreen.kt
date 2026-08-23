@@ -1,9 +1,10 @@
 package com.course.challengeme.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ConfirmationNumber
@@ -85,29 +86,48 @@ fun HomePageScreen(navController: NavController) {
                 },
                 actions = {
                     IconButton(onClick = { navController.navigate(Navigation.MyAccount.route) }) {
-                        MemberAvatar(name = myName, photoUrl = myPhotoUrl, size = 60.dp)
+                        MemberAvatar(name = myName, photoUrl = myPhotoUrl, size = 48.dp)
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = AppBackground)
             )
         },
-        floatingActionButton = {
-            Column(horizontalAlignment = Alignment.End) {
-                SmallFloatingActionButton(
-                    onClick = { navController.navigate(Navigation.JoinChallenge.route) },
-                    containerColor = ButtonDark,
-                    contentColor = Color.White
-                ) {
-                    Icon(Icons.Filled.ConfirmationNumber, contentDescription = "Join a challenge")
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                FloatingActionButton(
+        bottomBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(AppBackground)
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
                     onClick = { navController.navigate(Navigation.CreateChallenge.route) },
-                    containerColor = ButtonDark,
-                    contentColor = Color.White
+                    colors = ButtonDefaults.textButtonColors(
+                        containerColor = BlueLauncherBg,
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(24.dp),
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp)
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = "Create a challenge")
+                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Create", fontWeight = FontWeight.SemiBold)
+                }
+
+                TextButton(
+                    onClick = { navController.navigate(Navigation.JoinChallenge.route) },
+                    colors = ButtonDefaults.textButtonColors(
+                        containerColor = BlueLauncherBg,
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(24.dp),
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp)
+                ) {
+                    Icon(Icons.Filled.ConfirmationNumber, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Join via code", fontWeight = FontWeight.SemiBold)
                 }
             }
         }
