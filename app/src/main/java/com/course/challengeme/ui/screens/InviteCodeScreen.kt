@@ -12,7 +12,6 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-//import androidx.compose.ui.text.letterSpacing
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -22,6 +21,7 @@ import com.course.challengeme.ui.components.PrimaryButton
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.ButtonDark
+import com.course.challengeme.ui.theme.BlueLauncherBg
 
 @Composable
 fun InviteCodeScreen(navController: NavController, challengeId: String?) {
@@ -66,12 +66,6 @@ fun InviteCodeScreen(navController: NavController, challengeId: String?) {
                 fontWeight = FontWeight.Bold,
                 color = AppText,
                 textAlign = TextAlign.Center)
-            //Spacer(modifier = Modifier.height(8.dp))
-            /* Text(
-                 "Share this code so friends can join",
-                 fontSize = 14.sp,
-                 color = AppText.copy(alpha = 0.6f)
-             )*/
 
             Spacer(modifier = Modifier.height(40.dp))
 
@@ -103,6 +97,7 @@ fun InviteCodeScreen(navController: NavController, challengeId: String?) {
 
             PrimaryButton(
                 text = "Go to Home",
+                containerColor = BlueLauncherBg,
                 onClick = {
                     navController.navigate(Navigation.Home.route) {
                         popUpTo(Navigation.Home.route) { inclusive = true }

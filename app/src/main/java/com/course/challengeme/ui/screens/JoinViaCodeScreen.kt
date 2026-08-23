@@ -21,6 +21,7 @@ import com.course.challengeme.ui.components.TextField
 import com.course.challengeme.ui.components.PrimaryButton
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
+import com.course.challengeme.ui.theme.BlueLauncherBg
 import kotlinx.coroutines.launch
 
 @Composable
@@ -82,6 +83,7 @@ fun JoinViaCode(navController: NavController) {
                 text = "Join",
                 isLoading = isLoading,
                 enabled = code.isNotBlank(),
+                containerColor = BlueLauncherBg,
                 onClick = {
                     coroutineScope.launch {
                         isLoading = true

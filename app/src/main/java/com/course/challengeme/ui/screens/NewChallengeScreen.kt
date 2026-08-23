@@ -19,6 +19,7 @@ import com.course.challengeme.ui.components.PrimaryButton
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.ButtonDark
+import com.course.challengeme.ui.theme.BlueLauncherBg
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -69,12 +70,6 @@ fun NewChallengeScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center
         ) {
             Text("New Challenge", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = AppText)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                "Set the goal, the deadline, and what the prize is",
-                fontSize = 14.sp,
-                color = AppText.copy(alpha = 0.6f)
-            )
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -107,6 +102,7 @@ fun NewChallengeScreen(navController: NavController) {
                 text = "Create Challenge",
                 isLoading = isLoading,
                 enabled = title.isNotBlank() && selectedDateMillis != null,
+                containerColor = BlueLauncherBg,
                 onClick = {
                     val endDate = selectedDateMillis?.let { Timestamp(it / 1000, 0) }
                     if (endDate == null) {
