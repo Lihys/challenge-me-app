@@ -25,6 +25,7 @@ import com.course.challengeme.ui.components.MemberAvatar
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.ButtonDark
+import com.course.challengeme.ui.theme.BlueLauncherBg
 import com.course.challengeme.ui.theme.ChallengeBgMauve
 import com.course.challengeme.ui.theme.ChallengeBgRed
 import com.course.challengeme.ui.theme.ChallengeBgTan
@@ -75,7 +76,12 @@ fun HomePageScreen(navController: NavController) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Your Challenges", color = AppText, fontWeight = FontWeight.Bold)
+                    Text(
+                        "Hi, $myName!",
+                        color = BlueLauncherBg,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 38.sp
+                    )
                 },
                 actions = {
                     IconButton(onClick = { navController.navigate(Navigation.MyAccount.route) }) {
@@ -106,37 +112,50 @@ fun HomePageScreen(navController: NavController) {
             }
         }
     ) { innerPadding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.Center
+                .padding(innerPadding)
         ) {
-            when {
-                isLoading -> CircularProgressIndicator(color = ButtonDark)
-                errorMessage != null -> Text(
-                    text = errorMessage ?: "",
-                    color = MaterialTheme.colorScheme.error
-                )
-                challenges.isEmpty() -> Text(
-                    text = "No challenges yet. Create one or join with a code!",
-                    color = AppText.copy(alpha = 0.6f),
-                    fontSize = 15.sp
-                )
-                else -> LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(vertical = 16.dp)
-                ) {
-                    items(challenges) { challenge ->
-                        ChallengeCard(
-                            challenge = challenge,
-                            onClick = {
-                                navController.navigate(Navigation.ChallengePage.createRoute(challenge.id))
-                            }
-                        )
+            Text(
+                text = "Your Challenges",
+                color = AppText,
+                fontWeight = FontWeight.Bold,
+                fontSize = 25.sp,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                when {
+                    isLoading -> CircularProgressIndicator(color = ButtonDark)
+                    errorMessage != null -> Text(
+                        text = errorMessage ?: "",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    challenges.isEmpty() -> Text(
+                        text = "No challenges yet. Create one or join with a code!",
+                        color = AppText.copy(alpha = 0.6f),
+                        fontSize = 15.sp
+                    )
+                    else -> LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(vertical = 16.dp)
+                    ) {
+                        items(challenges) { challenge ->
+                            ChallengeCard(
+                                challenge = challenge,
+                                onClick = {
+                                    navController.navigate(Navigation.ChallengePage.createRoute(challenge.id))
+                                }
+                            )
+                        }
                     }
                 }
             }
