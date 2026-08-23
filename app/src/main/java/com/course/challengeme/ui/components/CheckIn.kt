@@ -5,10 +5,10 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
-//import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -41,7 +41,12 @@ import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 
 @Composable
-fun CheckIn(update: ProofModel, memberName: String, modifier: Modifier = Modifier) {
+fun CheckIn(
+    update: ProofModel,
+    memberName: String,
+    avatarUrl: String? = null,
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
     val date = update.createdAt?.toDate()
     val today = Calendar.getInstance()
@@ -62,9 +67,13 @@ fun CheckIn(update: ProofModel, memberName: String, modifier: Modifier = Modifie
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top
         ) {
-            Column {
-                Text(memberName, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = AppText)
-                Text(timeLabel, fontSize = 12.sp, color = AppText.copy(alpha = 0.5f))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                MemberAvatar(name = memberName, photoUrl = avatarUrl, size = 32.dp)
+                Spacer(modifier = Modifier.width(8.dp))
+                Column {
+                    Text(memberName, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = AppText)
+                    Text(timeLabel, fontSize = 12.sp, color = AppText.copy(alpha = 0.5f))
+                }
             }
             Text(
                 "+${update.pointsAwarded}",
@@ -136,6 +145,38 @@ fun CheckIn(update: ProofModel, memberName: String, modifier: Modifier = Modifie
 
         Spacer(modifier = Modifier.height(12.dp))
         HorizontalDivider(color = AppText.copy(alpha = 0.08f))
+    }
+}
+
+/**
+ * letter of their name when no photo
+ */
+@Composable
+fun MemberAvatar(name: String, photoUrl: String?, size: androidx.compose.ui.unit.Dp) {
+    if (photoUrl != null) {
+        AsyncImage(
+            model = photoUrl,
+            contentDescription = "Profile photo",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(size)
+                .clip(CircleShape)
+        )
+    } else {
+        androidx.compose.foundation.layout.Box(
+            modifier = Modifier
+                .size(size)
+                .clip(CircleShape)
+                .background(ChallengeBgTan),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = name.firstOrNull()?.uppercase() ?: "?",
+                color = AppBackground,
+                fontWeight = FontWeight.Bold,
+                fontSize = (size.value * 0.4f).sp
+            )
+        }
     }
 }
 
