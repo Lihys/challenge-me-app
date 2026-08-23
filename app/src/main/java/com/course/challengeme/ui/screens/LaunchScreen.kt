@@ -57,8 +57,6 @@ fun LaunchScreen(navController: NavController) {
                 .padding(vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(48.dp))
-
             // logo + cool cat as the big centerpiece
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -99,24 +97,26 @@ fun LaunchScreen(navController: NavController) {
                 modifier = Modifier
                     .clip(CircleShape)
                     .background(color = AppBackground)
-                    .padding(horizontal = 8.dp)
+                    .padding(horizontal = 20.dp, vertical = 8.dp)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     LottieAnimation(
                         composition = composition,
                         progress = { progress },
-                        modifier = Modifier.size(28.dp)
+                        modifier = Modifier.size(48.dp)
                     )
                     Text(
                         text = "Continue",
                         color = AppText,
-                        fontSize = 16.sp,
+                        fontSize = 22.sp,
                     )
                 }
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
