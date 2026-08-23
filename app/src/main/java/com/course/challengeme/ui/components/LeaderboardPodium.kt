@@ -20,7 +20,7 @@ import com.course.challengeme.ui.theme.ChallengeBgTan
 
 @Composable
 fun LeaderboardPodium(
-    topThree: List<LeaderboardEntry>, // sorted rank 1..3, may have fewer than 3
+    topThree: List<LeaderboardEntry>,
     modifier: Modifier = Modifier
 ) {
     val first = topThree.getOrNull(0)
@@ -41,20 +41,7 @@ fun LeaderboardPodium(
 @Composable
 private fun PodiumSpot(entry: LeaderboardEntry?, barHeight: Dp) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(
-            modifier = Modifier
-                .size(52.dp)
-                .clip(CircleShape)
-                .background(ChallengeBgTan),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = entry?.name?.firstOrNull()?.uppercase() ?: "?",
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
-            )
-        }
+        MemberAvatar(name = entry?.name ?: "?", photoUrl = entry?.avatarUrl, size = 52.dp)
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = entry?.name ?: "—",
