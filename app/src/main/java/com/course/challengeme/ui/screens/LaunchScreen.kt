@@ -97,21 +97,22 @@ fun LaunchScreen(navController: NavController) {
                 modifier = Modifier
                     .clip(CircleShape)
                     .background(color = AppBackground)
-                    .padding(horizontal = 20.dp, vertical = 8.dp)
+                    .padding(horizontal = 20.dp, vertical = 3.dp)
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    LottieAnimation(
-                        composition = composition,
-                        progress = { progress },
-                        modifier = Modifier.size(48.dp)
-                    )
+
                     Text(
                         text = "Continue",
                         color = AppText,
                         fontSize = 22.sp,
+                    )
+                    LottieAnimation(
+                        composition = composition,
+                        progress = { progress },
+                        modifier = Modifier.size(48.dp)
                     )
                 }
             }
