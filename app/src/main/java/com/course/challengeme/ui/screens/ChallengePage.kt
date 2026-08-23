@@ -89,7 +89,7 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
     var totalEntries by remember { mutableStateOf<List<LeaderboardEntry>>(emptyList()) }
     var leaderboardMode by remember { mutableStateOf(LeaderboardMode.WEEKLY) }
     var recentUpdates by remember { mutableStateOf<List<ProofModel>>(emptyList()) }
-    var memberNames by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
+    var memberNames by remember { mutableStateOf<Map<String, com.course.challengeme.data.UserSummary>>(emptyMap()) }
 
     val challengeRepository = remember { ChallengeRepo() }
     val userRepository = remember { UserRepo() }
@@ -199,7 +199,7 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
 
                 if (isCompleted && !showCheckInHistory) {
                     CelebrationScreen(
-                        winnerName = memberNames[c.winnerId] ?: totalEntries.firstOrNull()?.name ?: "Someone",
+                        memberNames[c.winnerId]?.name ?: totalEntries.firstOrNull()?.name ?: "",
                         onSeePastCheckIns = { showCheckInHistory = true },
                         onBack = { navController.popBackStack() }
                     )
@@ -303,7 +303,7 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                                 dailyBonus?.takeIf { it.checkedInMemberIds.size >= 2 }?.let { items += FeedItem.Bonus(it) }
                                 items.sortedWith(
                                     compareByDescending<FeedItem> { it.sortSeconds }
-                                        .thenByDescending { it is FeedItem.Bonus } // ties go to the bonus row, so it sits above
+                                        .thenByDescending { it is FeedItem.Bonus } // ties go to the bonus banner
                                 )
                             }
 
@@ -312,7 +312,8 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                                     when (item) {
                                         is FeedItem.Checkin -> CheckIn(
                                             update = item.proof,
-                                            memberName = memberNames[item.proof.userId] ?: "Unknown"
+                                            memberName = memberNames[item.proof.userId]?.name ?: "Unknown",
+                                            avatarUrl = memberNames[item.proof.userId]?.photoUrl
                                         )
                                         is FeedItem.Bonus -> TeamBonusBanner(
                                             memberCount = item.bonus.checkedInMemberIds.size,
