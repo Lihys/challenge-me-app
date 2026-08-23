@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -36,6 +37,8 @@ import com.course.challengeme.ui.components.TextField
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.ButtonDark
+import com.course.challengeme.ui.theme.BlueLauncherBg
+import com.course.challengeme.ui.theme.ChallengeBgTan
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -125,7 +128,7 @@ fun MyAccount(navController: NavController) {
                 Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = AppText)
             }
             Spacer(modifier = Modifier.width(4.dp))
-            Text("My Account", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = AppText)
+            Text("My Account", fontSize = 30.sp, fontWeight = FontWeight.Bold, color = BlueLauncherBg)
         }
 
         if (isLoading) {
@@ -147,12 +150,12 @@ fun MyAccount(navController: NavController) {
                         MemberAvatar(
                             name = name,
                             photoUrl = pendingPhotoUri?.toString() ?: photoUrl,
-                            size = 64.dp
+                            size = 96.dp
                         )
                         if (isEditing) {
                             Box(
                                 modifier = Modifier
-                                    .size(64.dp)
+                                    .size(96.dp)
                                     .clip(CircleShape)
                                     .background(Color.Black.copy(alpha = 0.35f))
                                     .clickable { imagePicker.launch("image/*") },
@@ -167,9 +170,9 @@ fun MyAccount(navController: NavController) {
                         if (isEditing) {
                             TextField(value = editedName, onValueChange = { editedName = it }, label = "Name")
                         } else {
-                            Text(name, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = AppText)
+                            Text(name, fontSize = 26.sp, fontWeight = FontWeight.Bold, color = AppText)
                         }
-                        Text(email, fontSize = 13.sp, color = AppText.copy(alpha = 0.6f))
+                        Text(email, fontSize = 14.sp, color = AppText.copy(alpha = 0.6f))
                     }
 
                     if (isEditing) {
@@ -199,9 +202,9 @@ fun MyAccount(navController: NavController) {
                             enabled = !isSaving
                         ) {
                             if (isSaving) {
-                                CircularProgressIndicator(color = ButtonDark, modifier = Modifier.size(20.dp))
+                                CircularProgressIndicator(color = BlueLauncherBg, modifier = Modifier.size(20.dp))
                             } else {
-                                Icon(Icons.Default.Check, contentDescription = "Save", tint = ButtonDark)
+                                Icon(Icons.Default.Check, contentDescription = "Save", tint = BlueLauncherBg)
                             }
                         }
                         IconButton(
@@ -245,7 +248,12 @@ fun MyAccount(navController: NavController) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    StatCard("Challenges Won", stats.challengesWon.toString(), Modifier.weight(1f))
+                    StatCard(
+                        label = "Challenges Won",
+                        value = stats.challengesWon.toString(),
+                        modifier = Modifier.weight(1f),
+                        icon = Icons.Filled.EmojiEvents
+                    )
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
@@ -276,15 +284,31 @@ fun MyAccount(navController: NavController) {
 }
 
 @Composable
-private fun StatCard(label: String, value: String, modifier: Modifier = Modifier) {
+private fun StatCard(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null
+) {
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(14.dp))
-            .border(BorderStroke(1.dp, ButtonDark.copy(alpha = 0.25f)), RoundedCornerShape(14.dp))
+            .border(BorderStroke(1.dp, BlueLauncherBg.copy(alpha = 0.3f)), RoundedCornerShape(14.dp))
             .padding(vertical = 14.dp, horizontal = 10.dp)
     ) {
-        Text(label, fontSize = 11.sp, color = AppText.copy(alpha = 0.6f))
+        Text(label, fontSize = 12.sp, color = AppText.copy(alpha = 0.6f))
         Spacer(modifier = Modifier.height(4.dp))
-        Text(value, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = AppText)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = ChallengeBgTan,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+            }
+            Text(value, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = AppText)
+        }
     }
 }
