@@ -85,9 +85,9 @@ fun HomePageScreen(navController: NavController) {
                 },
                 actions = {
                     IconButton(onClick = { navController.navigate(Navigation.MyAccount.route) }) {
-                        MemberAvatar(name = myName, photoUrl = myPhotoUrl, size = 32.dp)
+                        MemberAvatar(name = myName, photoUrl = myPhotoUrl, size = 60.dp)
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = AppBackground)
             )
