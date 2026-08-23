@@ -9,12 +9,6 @@ data class LeaderboardEntry(
 
 enum class LeaderboardMode { WEEKLY, TOTAL }
 
-/**
- * Ranks [userIds] by [points] (a member missing from the map defaults to 0
- * rather than being dropped), attaching display [names]. Both the weekly and
- * total leaderboard views are built through this so ChallengePage and
- * LeaderboardPage never disagree on ranking/tie-breaking.
- */
 fun buildLeaderboardEntries(
     userIds: List<String>,
     points: Map<String, Long>,

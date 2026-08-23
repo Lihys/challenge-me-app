@@ -16,7 +16,7 @@ class UserRepo {
     suspend fun getUsersByIds(userIds: List<String>): Map<String, String> {
         if (userIds.isEmpty()) return emptyMap()
         val result = mutableMapOf<String, String>()
-        // Firestore whereIn supports max 10 values per query — chunk for larger groups
+        // Firestore supports max 10 values per send so we chunk for larger groups
         userIds.chunked(10).forEach { chunk ->
             val snapshot = db.collection("users")
                 .whereIn(FieldPath.documentId(), chunk)
@@ -42,8 +42,7 @@ class UserRepo {
     }
 
     /**
-     * Number of challenges this user has won, per ChallengeRepo.claimWinIfNeeded.
-     * Defaults to 0 for users who haven't won anything yet (field won't exist yet).
+     * the number of challenges this user has won
      */
     suspend fun getWinsCount(userId: String): Result<Long> {
         return try {
