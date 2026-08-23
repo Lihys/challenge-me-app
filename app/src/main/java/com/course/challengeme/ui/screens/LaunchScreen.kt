@@ -5,11 +5,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,39 +54,41 @@ fun LaunchScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 48.dp),
+                .padding(vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(48.dp))
 
-            // Challenge me text + animation
+            // logo + cool cat as the big centerpiece
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.launcher_logo),
+                    painter = painterResource(id = R.drawable.launcher_logo2),
                     contentDescription = "Challenge Me logo",
-                    modifier = Modifier.size(350.dp)
+                    modifier = Modifier.size(320.dp)
                 )
 
-                val composition by rememberLottieComposition(
-                    LottieCompositionSpec.RawRes(R.raw.handshake_icon)
-                )
-                val progress by animateLottieCompositionAsState(
-                    composition = composition,
-                    iterations = Int.MAX_VALUE
-                )
-                LottieAnimation(
-                    composition = composition,
-                    progress = { progress },
-                    modifier = Modifier.size(250.dp)
+                Image(
+                    painter = painterResource(id = R.drawable.cool_cat),
+                    contentDescription = "Cool cat",
+                    modifier = Modifier.size(320.dp)
                 )
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
-            IconButton(
+            // Continue button with the handshake lottie inside it
+            val composition by rememberLottieComposition(
+                LottieCompositionSpec.RawRes(R.raw.handshake_icon)
+            )
+            val progress by animateLottieCompositionAsState(
+                composition = composition,
+                iterations = Int.MAX_VALUE
+            )
+
+            TextButton(
                 onClick = {
                     val destination =
                         if (authRepository.isLoggedIn) Navigation.Home.route else Navigation.Login.route
@@ -93,22 +97,26 @@ fun LaunchScreen(navController: NavController) {
                     }
                 },
                 modifier = Modifier
-                    .size(64.dp)
                     .clip(CircleShape)
                     .background(color = AppBackground)
+                    .padding(horizontal = 8.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = "Continue",
-                    tint = AppText
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    LottieAnimation(
+                        composition = composition,
+                        progress = { progress },
+                        modifier = Modifier.size(28.dp)
+                    )
+                    Text(
+                        text = "Continue",
+                        color = AppText,
+                        fontSize = 16.sp,
+                    )
+                }
             }
-
-
         }
-        //Spacer(modifier = Modifier.height(12.dp))
-
-
-
     }
 }
