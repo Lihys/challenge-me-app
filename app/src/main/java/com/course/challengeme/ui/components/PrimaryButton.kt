@@ -10,6 +10,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.course.challengeme.ui.theme.AppBackground
@@ -21,13 +22,14 @@ fun PrimaryButton(
     onClick: () -> Unit,
     isLoading: Boolean = false,
     enabled: Boolean = true,
+    containerColor: Color = ButtonDark,
     modifier: Modifier = Modifier
 ) {
     Button(
         onClick = onClick,
         enabled = enabled && !isLoading,
         shape = RoundedCornerShape(28.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = ButtonDark),
+        colors = ButtonDefaults.buttonColors(containerColor = containerColor),
         modifier = modifier
             .fillMaxWidth()
             .height(52.dp)

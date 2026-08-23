@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -23,7 +22,10 @@ import com.course.challengeme.ui.components.PrimaryButton
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.ButtonDark
+import com.course.challengeme.ui.theme.BlueLauncherBg // <-- Added this import
 import kotlinx.coroutines.launch
+import com.course.challengeme.ui.theme.BlueLauncherBg
+import com.course.challengeme.ui.theme.ButtonDark
 
 @Composable
 fun LogInScreen(navController: NavController) {
@@ -50,7 +52,8 @@ fun LogInScreen(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Welcome back!", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = AppText)
+        // Changed color from AppText to ButtonDark (Maroon)
+        Text("Welcome back!", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = ButtonDark)
         Spacer(modifier = Modifier.height(32.dp))
 
         TextField(value = email, onValueChange = { email = it }, label = "Email", keyboardType = KeyboardType.Email)
@@ -65,9 +68,10 @@ fun LogInScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(24.dp))
 
         PrimaryButton(
-            text = "Log In",
+            text = "Sign in",
             isLoading = isLoading,
             enabled = email.isNotBlank() && password.isNotBlank(),
+            containerColor = BlueLauncherBg, // <-- Pass the new blue color here
             onClick = {
                 coroutineScope.launch {
                     isLoading = true
@@ -80,9 +84,7 @@ fun LogInScreen(navController: NavController) {
             }
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
-        Text("or", color = AppText.copy(alpha = 0.5f), fontSize = 15.sp, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         GoogleSignInButton(
             onClick = {
@@ -97,8 +99,9 @@ fun LogInScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(24.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Don't have an account? ", color = AppText.copy(alpha = 0.7f), fontSize = 14.sp)
+            Text("No account? ", color = AppText.copy(alpha = 0.7f), fontSize = 14.sp)
             TextButton(onClick = { navController.navigate(Navigation.Register.route) }) {
+                // Kept as ButtonDark to match the title
                 Text("Register", color = ButtonDark, fontWeight = FontWeight.SemiBold)
             }
         }

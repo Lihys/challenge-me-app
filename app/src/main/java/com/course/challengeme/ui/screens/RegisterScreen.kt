@@ -20,6 +20,7 @@ import com.course.challengeme.ui.components.PrimaryButton
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.ButtonDark
+import com.course.challengeme.ui.theme.BlueLauncherBg
 import kotlinx.coroutines.launch
 import com.course.challengeme.data.UserRepo
 
@@ -52,7 +53,7 @@ fun RegisterScreen(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Create account", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = AppText)
+        Text("Create account", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = ButtonDark)
         Spacer(modifier = Modifier.height(32.dp))
 
         TextField(value = name, onValueChange = { name = it }, label = "Name")
@@ -74,6 +75,7 @@ fun RegisterScreen(navController: NavController) {
             text = "Create Account",
             isLoading = isLoading,
             enabled = name.isNotBlank() && email.isNotBlank() && password.isNotBlank(),
+            containerColor = BlueLauncherBg,
             onClick = {
                 if (password != confirmPassword) {
                     errorMessage = "Passwords don't match"
