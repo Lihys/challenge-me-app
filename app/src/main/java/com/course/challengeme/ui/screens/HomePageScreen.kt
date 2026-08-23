@@ -3,9 +3,9 @@ package com.course.challengeme.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,8 +18,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.course.challengeme.data.Challenge
 import com.course.challengeme.data.ChallengeRepo
+import com.course.challengeme.data.UserRepo
 import com.course.challengeme.navigations.Navigation
 import com.course.challengeme.ui.components.ChallengeCard
+import com.course.challengeme.ui.components.MemberAvatar
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.ButtonDark
@@ -34,13 +36,21 @@ fun HomePageScreen(navController: NavController) {
     var challenges by remember { mutableStateOf<List<Challenge>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var myName by remember { mutableStateOf("") }
+    var myPhotoUrl by remember { mutableStateOf<String?>(null) }
 
     val challengeRepository = remember { ChallengeRepo() }
+    val userRepository = remember { UserRepo() }
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
     val cardColors = listOf(ChallengeBgRed, ChallengeBgTan, ChallengeBgMauve)
 
     LaunchedEffect(currentUserId) {
         if (currentUserId != null) {
+            userRepository.getUserProfile(currentUserId).onSuccess { (n, _, p) ->
+                myName = n
+                myPhotoUrl = p
+            }
+
             challengeRepository.getChallengesForUser(currentUserId)
                 .onSuccess { models ->
                     challenges = models.mapIndexed { index, model ->
@@ -69,8 +79,9 @@ fun HomePageScreen(navController: NavController) {
                 },
                 actions = {
                     IconButton(onClick = { navController.navigate(Navigation.MyAccount.route) }) {
-                        Icon(Icons.Default.AccountCircle, contentDescription = "My Account", tint = AppText)
+                        MemberAvatar(name = myName, photoUrl = myPhotoUrl, size = 32.dp)
                     }
+                    Spacer(modifier = Modifier.width(8.dp))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = AppBackground)
             )
