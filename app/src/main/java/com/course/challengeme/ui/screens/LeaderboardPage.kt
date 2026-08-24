@@ -102,7 +102,6 @@ fun LeaderboardPage(navController: NavController, challengeId: String?) {
             }
             else -> {
                 val topThree = entries.take(3)
-                val rest = entries.drop(3)
                 val myEntry = entries.find { it.userId == currentUserId }
 
                 LeaderboardToggle(
@@ -147,7 +146,7 @@ fun LeaderboardPage(navController: NavController, challengeId: String?) {
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 24.dp)
                 ) {
-                    items(rest) { entry ->
+                    items(entries) { entry ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
