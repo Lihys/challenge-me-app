@@ -5,6 +5,14 @@ Friends create or join shared challenges (gym attendance, etc...), post daily ch
 The app is here to motivate via social accountability, fun and gamification.
 
 ---
+## App Screenshots
+
+<img src="screenshots/launch_screen.png" width="200"/> <img src="screenshots/initial_homepage.png" width="200"/> <img src="screenshots/homepage.png" width="200"/> <img src="screenshots/my_account.png" width="200"/>
+
+<img src="screenshots/chellenge_page.png" width="200"/> <img src="screenshots/challenge_checkins.png" width="200"/> <img src="screenshots/joincode.png" width="200"/>
+
+
+---
 
 ## Tools Used
 
