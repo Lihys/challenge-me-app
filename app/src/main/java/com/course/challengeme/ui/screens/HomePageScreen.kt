@@ -17,7 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.course.challengeme.data.models.Challenge
+import com.course.challengeme.ui.components.Challenge
 import com.course.challengeme.data.repos.ChallengeRepo
 import com.course.challengeme.data.repos.UserRepo
 import com.course.challengeme.data.models.buildLeaderboardEntries

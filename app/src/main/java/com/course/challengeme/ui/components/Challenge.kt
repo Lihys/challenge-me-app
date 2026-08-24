@@ -1,4 +1,4 @@
-package com.course.challengeme.data.models
+package com.course.challengeme.ui.components
 import androidx.compose.ui.graphics.Color
 
 //this is for the ui
