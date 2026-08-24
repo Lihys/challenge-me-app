@@ -6,65 +6,63 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import com.android.identity.util.UUID
 import com.course.challengeme.data.ChallengeModel
 import com.course.challengeme.data.ChallengeRepo
 import com.course.challengeme.data.LeaderboardEntry
 import com.course.challengeme.data.LeaderboardMode
 import com.course.challengeme.data.ProofModel
 import com.course.challengeme.data.ProofRepo
+import com.course.challengeme.data.TeamBonusModel
 import com.course.challengeme.data.UserRepo
 import com.course.challengeme.data.buildLeaderboardEntries
 import com.course.challengeme.navigations.Navigation
-import com.course.challengeme.ui.components.TextField
+import com.course.challengeme.ui.components.CelebrationScreen
 import com.course.challengeme.ui.components.CheckIn
 import com.course.challengeme.ui.components.LeaderboardPodium
 import com.course.challengeme.ui.components.LeaderboardToggle
-import com.course.challengeme.ui.components.CelebrationScreen
+import com.course.challengeme.ui.components.TeamBonusBanner
+import com.course.challengeme.ui.components.TextField
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
-import com.course.challengeme.ui.theme.ButtonDark
 import com.course.challengeme.ui.theme.BlueLauncherBg
+import com.course.challengeme.ui.theme.ButtonDark
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Locale
-import androidx.compose.ui.layout.ContentScale
-import coil.compose.AsyncImage
-import com.android.identity.util.UUID
-
-// for loading everything concurrencly and not one by one so it will work ahh
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.async
-import com.google.firebase.Timestamp
-
-import androidx.compose.foundation.clickable
-import androidx.compose.ui.text.style.TextOverflow
-
-//team bonus feature
-import com.course.challengeme.data.TeamBonusModel
-import com.course.challengeme.ui.components.TeamBonusBanner
 
 // Merges real check-ins and the (at most one) live team-bonus row into a
 // single sorted feed. The bonus row's sortSeconds comes from its own
@@ -171,7 +169,7 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                     if (location != null) {
                         attachedLocation = location.latitude to location.longitude
                     } else {
-                        submitError = "Couldn't get your location — try again"
+                        submitError = "Couldn't get your location. try again"
                     }
                 } catch (e: Exception) {
                     submitError = e.localizedMessage ?: "Location error"
@@ -274,30 +272,67 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                                 }
                             }
 
-                            c.description?.takeIf { it.isNotBlank() }?.let { desc ->
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = desc,
-                                    fontSize = 13.sp,
-                                    color = AppText.copy(alpha = 0.7f),
-                                    maxLines = if (isDescriptionExpanded) Int.MAX_VALUE else 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                    onTextLayout = { result ->
-                                        if (!isDescriptionExpanded) {
-                                            isDescriptionCutOff = result.hasVisualOverflow
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.Top
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    c.description?.takeIf { it.isNotBlank() }?.let { desc ->
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = desc,
+                                            fontSize = 13.sp,
+                                            color = AppText.copy(alpha = 0.7f),
+                                            maxLines = if (isDescriptionExpanded) Int.MAX_VALUE else 2,
+                                            overflow = TextOverflow.Ellipsis,
+                                            onTextLayout = { result ->
+                                                if (!isDescriptionExpanded) {
+                                                    isDescriptionCutOff = result.hasVisualOverflow
+                                                }
+                                            }
+                                        )
+                                        if (isDescriptionCutOff || isDescriptionExpanded) {
+                                            Text(
+                                                text = if (isDescriptionExpanded) "Hide description" else "See description",
+                                                fontSize = 12.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = ButtonDark,
+                                                modifier = Modifier
+                                                    .padding(top = 2.dp)
+                                                    .clickable { isDescriptionExpanded = !isDescriptionExpanded }
+                                            )
                                         }
                                     }
-                                )
-                                if (isDescriptionCutOff || isDescriptionExpanded) {
-                                    Text(
-                                        text = if (isDescriptionExpanded) "Hide description" else "See description",
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = ButtonDark,
+                                }
+
+                                c.prize?.takeIf { it.isNotBlank() }?.let { prize ->
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Box(
                                         modifier = Modifier
-                                            .padding(top = 2.dp)
-                                            .clickable { isDescriptionExpanded = !isDescriptionExpanded }
-                                    )
+                                            .size(64.dp)
+                                            .clip(CircleShape)
+                                            .background(BlueLauncherBg.copy(alpha = 0.1f)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Text(
+                                                text = "Prize:",
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = BlueLauncherBg,
+                                                textAlign = TextAlign.Center
+                                            )
+                                            Text(
+                                                text = prize,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = BlueLauncherBg,
+                                                textAlign = TextAlign.Center,
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+                                    }
                                 }
                             }
                             //-----
