@@ -13,12 +13,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,6 +43,7 @@ import com.course.challengeme.ui.components.CelebrationScreen
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.ButtonDark
+import com.course.challengeme.ui.theme.BlueLauncherBg
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -229,17 +232,47 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                             val leaderboardEntries = if (leaderboardMode == LeaderboardMode.TOTAL) totalEntries else weeklyEntries
                             val myRank = leaderboardEntries.find { it.userId == currentUserId }?.rank
 
-                            Text("Leaderboard", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = AppText)
+                            LeaderboardPodium(topThree = leaderboardEntries.take(3))
                             Spacer(modifier = Modifier.height(12.dp))
                             LeaderboardToggle(
                                 selected = leaderboardMode,
                                 onSelect = { leaderboardMode = it }
                             )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            LeaderboardPodium(topThree = leaderboardEntries.take(3))
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(20.dp))
 
-                            Text(c.title, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = AppText)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    c.title,
+                                    fontSize = 28.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = BlueLauncherBg,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                TextButton(
+                                    onClick = { navController.navigate(Navigation.InviteCode.createRoute(c.id)) },
+                                    colors = ButtonDefaults.textButtonColors(
+                                        containerColor = BlueLauncherBg,
+                                        contentColor = Color.White
+                                    ),
+                                    shape = RoundedCornerShape(24.dp),
+                                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Filled.ConfirmationNumber,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Invite code", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                                }
+                            }
 
                             c.description?.takeIf { it.isNotBlank() }?.let { desc ->
                                 Spacer(modifier = Modifier.height(4.dp))
@@ -270,30 +303,23 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                             //-----
                             Spacer(modifier = Modifier.height(4.dp))
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = buildString {
-                                        myRank?.let {
-                                            val label = if (leaderboardMode == LeaderboardMode.TOTAL) "overall" else "this week"
-                                            append("You're #$it $label | ")
-                                        }
-                                        append("${c.memberIds.size} members | ends $dateLabel")
-                                    },
-                                    fontSize = 12.sp,
-                                    color = AppText.copy(alpha = 0.6f)
-                                )
-                                TextButton(onClick = { navController.navigate(Navigation.InviteCode.createRoute(c.id)) }) {
-                                    Text("Invite code", color = ButtonDark, fontSize = 12.sp)
-                                }
-                            }
+                            Text(
+                                text = buildString {
+                                    myRank?.let {
+                                        val label = if (leaderboardMode == LeaderboardMode.TOTAL) "overall" else "this week"
+                                        append("You're #$it $label | ")
+                                    }
+                                    append("${c.memberIds.size} members | ends $dateLabel")
+                                },
+                                fontSize = 12.sp,
+                                color = AppText.copy(alpha = 0.6f)
+                            )
 
                             Spacer(modifier = Modifier.height(20.dp))
                             Text("Check-ins", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = AppText)
                             Spacer(modifier = Modifier.height(12.dp))
+                            //-----
+
                         }
 
                         item {
