@@ -32,41 +32,41 @@ fun LeaderboardPodium(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.Bottom
     ) {
-        PodiumSpot(entry = third, barHeight = 80.dp)
-        PodiumSpot(entry = first, barHeight = 120.dp)
-        PodiumSpot(entry = second, barHeight = 100.dp)
+        PodiumSpot(entry = third, barHeight = 70.dp)
+        PodiumSpot(entry = first, barHeight = 100.dp)
+        PodiumSpot(entry = second, barHeight = 80.dp)
     }
 }
 
 @Composable
 private fun PodiumSpot(entry: LeaderboardEntry?, barHeight: Dp) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        MemberAvatar(name = entry?.name ?: "?", photoUrl = entry?.avatarUrl, size = 52.dp)
-        Spacer(modifier = Modifier.height(6.dp))
+        MemberAvatar(name = entry?.name ?: "?", photoUrl = entry?.avatarUrl, size = 44.dp)
+        Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = entry?.name ?: "—",
-            fontSize = 13.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold,
             color = AppText
         )
         Text(
             text = entry?.let { "${it.points} pts" } ?: "",
-            fontSize = 11.sp,
+            fontSize = 10.sp,
             color = AppText.copy(alpha = 0.6f)
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(6.dp))
         Box(
             modifier = Modifier
-                .width(64.dp)
+                .width(56.dp)
                 .height(barHeight)
-                .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                .clip(RoundedCornerShape(topStart = 14.dp, topEnd = 14.dp))
                 .background(ChallengeBgTan.copy(alpha = 0.5f)),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = entry?.rank?.toString() ?: "-",
                 fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 color = AppText
             )
         }

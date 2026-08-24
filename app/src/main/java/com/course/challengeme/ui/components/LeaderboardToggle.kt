@@ -32,9 +32,9 @@ fun LeaderboardToggle(
 ) {
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(24.dp))
+            .clip(RoundedCornerShape(20.dp))
             .background(ButtonDark.copy(alpha = 0.08f))
-            .padding(4.dp)
+            .padding(3.dp)
     ) {
         ToggleOption(
             label = "This Week",
@@ -54,15 +54,15 @@ private fun RowScope.ToggleOption(label: String, isSelected: Boolean, onClick: (
     Box(
         modifier = Modifier
             .weight(1f)
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(17.dp))
             .background(if (isSelected) ButtonDark else Color.Transparent)
             .clickable(onClick = onClick)
-            .padding(vertical = 8.dp),
+            .padding(vertical = 5.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = label,
-            fontSize = 13.sp,
+            fontSize = 11.sp,
             fontWeight = FontWeight.SemiBold,
             color = if (isSelected) Color.White else AppText
         )
