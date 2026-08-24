@@ -15,13 +15,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.course.challengeme.data.ChallengeRepo
+import com.course.challengeme.data.repos.ChallengeRepo
 import com.course.challengeme.navigations.Navigation
 import com.course.challengeme.ui.components.TextField
 import com.course.challengeme.ui.components.PrimaryButton
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
-import com.course.challengeme.ui.theme.BlueLauncherBg
+import com.course.challengeme.ui.theme.MyBlue
 import kotlinx.coroutines.launch
 
 @Composable
@@ -83,7 +83,7 @@ fun JoinViaCode(navController: NavController) {
                 text = "Join",
                 isLoading = isLoading,
                 enabled = code.isNotBlank(),
-                containerColor = BlueLauncherBg,
+                containerColor = MyBlue,
                 onClick = {
                     coroutineScope.launch {
                         isLoading = true

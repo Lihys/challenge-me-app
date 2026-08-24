@@ -4,10 +4,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import com.course.challengeme.data.ProofModel
-import com.course.challengeme.data.ProofRepo
-import com.course.challengeme.data.TeamBonusModel
-import com.course.challengeme.data.UserSummary
+import com.course.challengeme.data.models.ProofModel
+import com.course.challengeme.data.repos.ProofRepo
+import com.course.challengeme.data.models.TeamBonusModel
+import com.course.challengeme.data.repos.UserSummary
 
 // mamanges the real check-ins and the team-bonus row into a sorted feed :)
 

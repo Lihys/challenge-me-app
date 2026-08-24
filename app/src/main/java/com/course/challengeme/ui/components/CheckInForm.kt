@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.course.challengeme.ui.theme.AppBackground
-import com.course.challengeme.ui.theme.BlueLauncherBg
-import com.course.challengeme.ui.theme.ButtonDark
+import com.course.challengeme.ui.theme.MyBlue
+import com.course.challengeme.ui.theme.Maroon
 
 @Composable
 fun CheckInForm(
@@ -86,7 +86,7 @@ fun CheckInForm(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 TextButton(onClick = onRemovePhoto) {
-                    Text("Remove", color = ButtonDark, fontSize = 12.sp)
+                    Text("Remove", color = Maroon, fontSize = 12.sp)
                 }
             }
         }
@@ -96,7 +96,7 @@ fun CheckInForm(
         Button(
             onClick = onSubmit,
             enabled = !isSubmitting,
-            colors = ButtonDefaults.buttonColors(containerColor = BlueLauncherBg),
+            colors = ButtonDefaults.buttonColors(containerColor = MyBlue),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(if (isSubmitting) "Posting..." else "Post update")

@@ -21,11 +21,9 @@ import com.course.challengeme.ui.components.GoogleSignInButton
 import com.course.challengeme.ui.components.PrimaryButton
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
-import com.course.challengeme.ui.theme.ButtonDark
-import com.course.challengeme.ui.theme.BlueLauncherBg // <-- Added this import
+import com.course.challengeme.ui.theme.Maroon
+import com.course.challengeme.ui.theme.MyBlue // <-- Added this import
 import kotlinx.coroutines.launch
-import com.course.challengeme.ui.theme.BlueLauncherBg
-import com.course.challengeme.ui.theme.ButtonDark
 
 @Composable
 fun LogInScreen(navController: NavController) {
@@ -53,7 +51,7 @@ fun LogInScreen(navController: NavController) {
         verticalArrangement = Arrangement.Center
     ) {
         // Changed color from AppText to ButtonDark (Maroon)
-        Text("Welcome back!", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = ButtonDark)
+        Text("Welcome back!", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Maroon)
         Spacer(modifier = Modifier.height(32.dp))
 
         TextField(value = email, onValueChange = { email = it }, label = "Email", keyboardType = KeyboardType.Email)
@@ -71,7 +69,7 @@ fun LogInScreen(navController: NavController) {
             text = "Sign in",
             isLoading = isLoading,
             enabled = email.isNotBlank() && password.isNotBlank(),
-            containerColor = BlueLauncherBg, // <-- Pass the new blue color here
+            containerColor = MyBlue, // <-- Pass the new blue color here
             onClick = {
                 coroutineScope.launch {
                     isLoading = true
@@ -102,7 +100,7 @@ fun LogInScreen(navController: NavController) {
             Text("No account? ", color = AppText.copy(alpha = 0.7f), fontSize = 14.sp)
             TextButton(onClick = { navController.navigate(Navigation.Register.route) }) {
                 // Kept as ButtonDark to match the title
-                Text("Register", color = ButtonDark, fontWeight = FontWeight.SemiBold)
+                Text("Register", color = Maroon, fontWeight = FontWeight.SemiBold)
             }
         }
     }

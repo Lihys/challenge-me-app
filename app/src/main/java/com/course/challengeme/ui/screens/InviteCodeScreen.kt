@@ -15,13 +15,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.course.challengeme.data.ChallengeRepo
+import com.course.challengeme.data.repos.ChallengeRepo
 import com.course.challengeme.navigations.Navigation
 import com.course.challengeme.ui.components.PrimaryButton
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
-import com.course.challengeme.ui.theme.ButtonDark
-import com.course.challengeme.ui.theme.BlueLauncherBg
+import com.course.challengeme.ui.theme.Maroon
+import com.course.challengeme.ui.theme.MyBlue
 
 @Composable
 fun InviteCodeScreen(navController: NavController, challengeId: String?) {
@@ -70,14 +70,14 @@ fun InviteCodeScreen(navController: NavController, challengeId: String?) {
             Spacer(modifier = Modifier.height(40.dp))
 
             if (isLoading) {
-                CircularProgressIndicator(color = ButtonDark)
+                CircularProgressIndicator(color = Maroon)
             } else {
                 Text(
                     text = inviteCode ?: "—",
                     fontSize = 40.sp,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 8.sp,
-                    color = ButtonDark
+                    color = Maroon
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -97,7 +97,7 @@ fun InviteCodeScreen(navController: NavController, challengeId: String?) {
 
             PrimaryButton(
                 text = "Go to Home",
-                containerColor = BlueLauncherBg,
+                containerColor = MyBlue,
                 onClick = {
                     navController.navigate(Navigation.Home.route) {
                         popUpTo(Navigation.Home.route) { inclusive = true }

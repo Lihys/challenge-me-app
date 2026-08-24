@@ -19,7 +19,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.android.identity.util.UUID
-import com.course.challengeme.data.*
+import com.course.challengeme.data.models.ChallengeModel
+import com.course.challengeme.data.models.LeaderboardEntry
+import com.course.challengeme.data.models.LeaderboardMode
+import com.course.challengeme.data.models.ProofModel
+import com.course.challengeme.data.models.TeamBonusModel
+import com.course.challengeme.data.models.buildLeaderboardEntries
+import com.course.challengeme.data.repos.ChallengeRepo
+import com.course.challengeme.data.repos.ProofRepo
+import com.course.challengeme.data.repos.UserRepo
+import com.course.challengeme.data.repos.UserSummary
 import com.course.challengeme.navigations.Navigation
 import com.course.challengeme.ui.components.CelebrationScreen
 import com.course.challengeme.ui.components.ChallengeFeed
@@ -27,7 +36,7 @@ import com.course.challengeme.ui.components.ChallengeHeaderSection
 import com.course.challengeme.ui.components.CheckInForm
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
-import com.course.challengeme.ui.theme.ButtonDark
+import com.course.challengeme.ui.theme.Maroon
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -202,7 +211,7 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
         .background(AppBackground)
         .statusBarsPadding()) {
         when {
-            isLoading -> CircularProgressIndicator(color = ButtonDark, modifier = Modifier.align(Alignment.Center))
+            isLoading -> CircularProgressIndicator(color = Maroon, modifier = Modifier.align(Alignment.Center))
             errorMessage != null -> Text(
                 errorMessage ?: "",
                 color = MaterialTheme.colorScheme.error,
@@ -234,7 +243,7 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                             Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = AppText)
                         }
                         TextButton(onClick = { navController.navigate(Navigation.Leaderboard.createRoute(c.id)) }) {
-                            Text("See full leaderboard", color = ButtonDark, fontSize = 13.sp)
+                            Text("See full leaderboard", color = Maroon, fontSize = 13.sp)
                         }
                     }
 

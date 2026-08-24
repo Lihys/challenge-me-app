@@ -1,4 +1,6 @@
-package com.course.challengeme.data
+package com.course.challengeme.data.models
+
+import com.course.challengeme.data.repos.UserSummary
 
 data class LeaderboardEntry(
     val userId: String,

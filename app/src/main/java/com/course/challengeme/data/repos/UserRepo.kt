@@ -1,4 +1,4 @@
-package com.course.challengeme.data
+package com.course.challengeme.data.repos
 
 import android.net.Uri
 import com.google.firebase.firestore.FieldPath

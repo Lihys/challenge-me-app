@@ -16,10 +16,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.course.challengeme.data.LeaderboardMode
+import com.course.challengeme.data.models.LeaderboardMode
 import com.course.challengeme.ui.theme.AppText
-import com.course.challengeme.ui.theme.BlueLauncherBg
-import com.course.challengeme.ui.theme.ButtonDark
+import com.course.challengeme.ui.theme.MyBlue
+import com.course.challengeme.ui.theme.Maroon
 
 /**
  * This Week/Total  toggle
@@ -34,7 +34,7 @@ fun LeaderboardToggle(
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(ButtonDark.copy(alpha = 0.08f))
+            .background(Maroon.copy(alpha = 0.08f))
             .padding(3.dp)
     ) {
         ToggleOption(
@@ -56,7 +56,7 @@ private fun RowScope.ToggleOption(label: String, isSelected: Boolean, onClick: (
         modifier = Modifier
             .weight(1f)
             .clip(RoundedCornerShape(17.dp))
-            .background(if (isSelected) BlueLauncherBg.copy(alpha = 0.50f)  else Color.Transparent)
+            .background(if (isSelected) MyBlue.copy(alpha = 0.50f)  else Color.Transparent)
             .clickable(onClick = onClick)
             .padding(vertical = 5.dp),
         contentAlignment = Alignment.Center

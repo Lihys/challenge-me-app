@@ -19,10 +19,10 @@ import com.course.challengeme.ui.components.TextField
 import com.course.challengeme.ui.components.PrimaryButton
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
-import com.course.challengeme.ui.theme.ButtonDark
-import com.course.challengeme.ui.theme.BlueLauncherBg
+import com.course.challengeme.ui.theme.Maroon
+import com.course.challengeme.ui.theme.MyBlue
 import kotlinx.coroutines.launch
-import com.course.challengeme.data.UserRepo
+import com.course.challengeme.data.repos.UserRepo
 
 @Composable
 fun RegisterScreen(navController: NavController) {
@@ -53,7 +53,7 @@ fun RegisterScreen(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Create account", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = ButtonDark)
+        Text("Create account", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Maroon)
         Spacer(modifier = Modifier.height(32.dp))
 
         TextField(value = name, onValueChange = { name = it }, label = "Name")
@@ -75,7 +75,7 @@ fun RegisterScreen(navController: NavController) {
             text = "Create Account",
             isLoading = isLoading,
             enabled = name.isNotBlank() && email.isNotBlank() && password.isNotBlank(),
-            containerColor = BlueLauncherBg,
+            containerColor = MyBlue,
             onClick = {
                 if (password != confirmPassword) {
                     errorMessage = "Passwords don't match"
@@ -109,7 +109,7 @@ fun RegisterScreen(navController: NavController) {
                     }
                 }
             ) {
-                Text("Log In", color = ButtonDark, fontWeight = FontWeight.SemiBold)
+                Text("Log In", color = Maroon, fontWeight = FontWeight.SemiBold)
             }
         }
     }

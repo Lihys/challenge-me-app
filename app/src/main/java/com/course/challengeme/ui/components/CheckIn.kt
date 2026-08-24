@@ -24,10 +24,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.course.challengeme.data.ProofModel
+import com.course.challengeme.data.models.ProofModel
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
-import com.course.challengeme.ui.theme.ButtonDark
+import com.course.challengeme.ui.theme.Maroon
 import com.course.challengeme.ui.theme.ChallengeBgTan
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -86,7 +86,7 @@ fun CheckIn(
                     "+${update.pointsAwarded}",
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
-                    color = ButtonDark
+                    color = Maroon
                 )
             }
 

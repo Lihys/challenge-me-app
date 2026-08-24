@@ -14,7 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.course.challengeme.data.Challenge
+import com.course.challengeme.data.models.Challenge
 
 @Composable
 fun ChallengeCard(

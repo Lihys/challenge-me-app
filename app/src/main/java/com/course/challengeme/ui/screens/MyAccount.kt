@@ -27,16 +27,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.course.challengeme.data.ChallengeRepo
-import com.course.challengeme.data.ProofRepo
-import com.course.challengeme.data.UserRepo
+import com.course.challengeme.data.repos.ChallengeRepo
+import com.course.challengeme.data.repos.ProofRepo
+import com.course.challengeme.data.repos.UserRepo
 import com.course.challengeme.navigations.Navigation
 import com.course.challengeme.ui.components.MemberAvatar
 import com.course.challengeme.ui.components.TextField
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
-import com.course.challengeme.ui.theme.ButtonDark
-import com.course.challengeme.ui.theme.BlueLauncherBg
+import com.course.challengeme.ui.theme.Maroon
+import com.course.challengeme.ui.theme.MyBlue
 import com.course.challengeme.ui.theme.ChallengeBgTan
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -127,12 +127,12 @@ fun MyAccount(navController: NavController) {
                 Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = AppText)
             }
             Spacer(modifier = Modifier.width(4.dp))
-            Text("My Account", fontSize = 30.sp, fontWeight = FontWeight.Bold, color = BlueLauncherBg)
+            Text("My Account", fontSize = 30.sp, fontWeight = FontWeight.Bold, color = MyBlue)
         }
 
         if (isLoading) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = ButtonDark)
+                CircularProgressIndicator(color = Maroon)
             }
         } else {
             Column(
@@ -201,9 +201,9 @@ fun MyAccount(navController: NavController) {
                             enabled = !isSaving
                         ) {
                             if (isSaving) {
-                                CircularProgressIndicator(color = BlueLauncherBg, modifier = Modifier.size(20.dp))
+                                CircularProgressIndicator(color = MyBlue, modifier = Modifier.size(20.dp))
                             } else {
-                                Icon(Icons.Default.Check, contentDescription = "Save", tint = BlueLauncherBg)
+                                Icon(Icons.Default.Check, contentDescription = "Save", tint = MyBlue)
                             }
                         }
                         IconButton(
@@ -269,14 +269,14 @@ fun MyAccount(navController: NavController) {
                     }
                 },
                 shape = RoundedCornerShape(28.dp),
-                border = BorderStroke(1.dp, ButtonDark),
+                border = BorderStroke(1.dp, Maroon),
                 modifier = Modifier
                     .padding(20.dp)
                     .fillMaxWidth()
             ) {
-                Icon(Icons.Default.Logout, contentDescription = null, tint = ButtonDark, modifier = Modifier.size(18.dp))
+                Icon(Icons.Default.Logout, contentDescription = null, tint = Maroon, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Sign Out", color = ButtonDark, fontWeight = FontWeight.SemiBold)
+                Text("Sign Out", color = Maroon, fontWeight = FontWeight.SemiBold)
             }
         }
     }
@@ -292,7 +292,7 @@ private fun StatCard(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(14.dp))
-            .border(BorderStroke(1.dp, BlueLauncherBg.copy(alpha = 0.3f)), RoundedCornerShape(14.dp))
+            .border(BorderStroke(1.dp, MyBlue.copy(alpha = 0.3f)), RoundedCornerShape(14.dp))
             .padding(vertical = 14.dp, horizontal = 10.dp)
     ) {
         Text(label, fontSize = 12.sp, color = AppText.copy(alpha = 0.6f))

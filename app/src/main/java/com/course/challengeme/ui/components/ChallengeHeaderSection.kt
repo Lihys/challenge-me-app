@@ -25,12 +25,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.course.challengeme.data.ChallengeModel
-import com.course.challengeme.data.LeaderboardEntry
-import com.course.challengeme.data.LeaderboardMode
+import com.course.challengeme.data.models.ChallengeModel
+import com.course.challengeme.data.models.LeaderboardEntry
+import com.course.challengeme.data.models.LeaderboardMode
 import com.course.challengeme.ui.theme.AppText
-import com.course.challengeme.ui.theme.BlueLauncherBg
-import com.course.challengeme.ui.theme.ButtonDark
+import com.course.challengeme.ui.theme.MyBlue
+import com.course.challengeme.ui.theme.Maroon
 
 @Composable
 fun ChallengeHeaderSection(
@@ -64,7 +64,7 @@ fun ChallengeHeaderSection(
                 challenge.title,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = BlueLauncherBg,
+                color = MyBlue,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
@@ -73,7 +73,7 @@ fun ChallengeHeaderSection(
             TextButton(
                 onClick = onInviteCodeClick,
                 colors = ButtonDefaults.textButtonColors(
-                    containerColor = BlueLauncherBg,
+                    containerColor = MyBlue,
                     contentColor = Color.White
                 ),
                 shape = RoundedCornerShape(24.dp),
@@ -126,7 +126,7 @@ fun ChallengeHeaderSection(
                             text = if (isDescriptionExpanded) "Hide description" else "See description",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = ButtonDark,
+                            color = Maroon,
                             modifier = Modifier
                                 .padding(top = 2.dp)
                                 .clickable { isDescriptionExpanded = !isDescriptionExpanded }
@@ -141,7 +141,7 @@ fun ChallengeHeaderSection(
                     modifier = Modifier
                         .size(64.dp)
                         .clip(CircleShape)
-                        .background(BlueLauncherBg.copy(alpha = 0.1f)),
+                        .background(MyBlue.copy(alpha = 0.1f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -149,14 +149,14 @@ fun ChallengeHeaderSection(
                             text = "Prize:",
                             fontSize = 10.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = BlueLauncherBg,
+                            color = MyBlue,
                             textAlign = TextAlign.Center
                         )
                         Text(
                             text = prize,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = BlueLauncherBg,
+                            color = MyBlue,
                             textAlign = TextAlign.Center,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis

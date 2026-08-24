@@ -1,4 +1,4 @@
-package com.course.challengeme.data
+package com.course.challengeme.data.models
 import androidx.compose.ui.graphics.Color
 
 data class Challenge(

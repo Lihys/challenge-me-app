@@ -12,14 +12,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.course.challengeme.data.ChallengeRepo
+import com.course.challengeme.data.repos.ChallengeRepo
 import com.course.challengeme.navigations.Navigation
 import com.course.challengeme.ui.components.TextField
 import com.course.challengeme.ui.components.PrimaryButton
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
-import com.course.challengeme.ui.theme.ButtonDark
-import com.course.challengeme.ui.theme.BlueLauncherBg
+import com.course.challengeme.ui.theme.Maroon
+import com.course.challengeme.ui.theme.MyBlue
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -102,7 +102,7 @@ fun NewChallengeScreen(navController: NavController) {
                 text = "Create Challenge",
                 isLoading = isLoading,
                 enabled = title.isNotBlank() && selectedDateMillis != null,
-                containerColor = BlueLauncherBg,
+                containerColor = MyBlue,
                 onClick = {
                     val endDate = selectedDateMillis?.let { Timestamp(it / 1000, 0) }
                     if (endDate == null) {
@@ -136,7 +136,7 @@ fun NewChallengeScreen(navController: NavController) {
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("OK", color = ButtonDark)
+                    Text("OK", color = Maroon)
                 }
             },
             dismissButton = {

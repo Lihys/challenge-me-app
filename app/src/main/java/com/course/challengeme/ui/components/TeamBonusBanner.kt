@@ -13,7 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.course.challengeme.ui.theme.AppText
-import com.course.challengeme.ui.theme.ButtonDark
+import com.course.challengeme.ui.theme.Maroon
 import com.course.challengeme.ui.theme.ChallengeBgTan
 
 @Composable
@@ -32,7 +32,7 @@ fun TeamBonusBanner(memberCount: Int, bonusPoints: Long, modifier: Modifier = Mo
                 Text("Team bonus!", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = AppText)
                 Text("$memberCount members checked in today!", fontSize = 12.sp, color = AppText.copy(alpha = 0.7f))
             }
-            Text("+$bonusPoints pts each", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = ButtonDark)
+            Text("+$bonusPoints pts each", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Maroon)
         }
         Spacer(modifier = Modifier.height(12.dp))
         HorizontalDivider(color = AppText.copy(alpha = 0.08f))

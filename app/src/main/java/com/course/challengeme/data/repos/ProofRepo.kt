@@ -1,8 +1,10 @@
-package com.course.challengeme.data
+package com.course.challengeme.data.repos
 
 import android.content.Context
 import android.location.Geocoder
 import android.net.Uri
+import com.course.challengeme.data.models.ProofModel
+import com.course.challengeme.data.models.TeamBonusModel
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
@@ -245,7 +247,9 @@ class ProofRepo {
 
                 if (checkedIn.size >= 2) {
                     (checkedIn - alreadyAwarded).forEach { memberId ->
-                        transaction.update(challengeRef, "memberPoints.$memberId", FieldValue.increment(TEAM_BONUS))
+                        transaction.update(challengeRef, "memberPoints.$memberId", FieldValue.increment(
+                            TEAM_BONUS
+                        ))
                     }
                     alreadyAwarded.addAll(checkedIn)
                 }

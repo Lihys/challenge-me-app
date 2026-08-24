@@ -1,5 +1,6 @@
-package com.course.challengeme.data
+package com.course.challengeme.data.repos
 
+import com.course.challengeme.data.models.ChallengeModel
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue

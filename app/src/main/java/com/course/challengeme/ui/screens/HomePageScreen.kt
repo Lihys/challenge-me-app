@@ -17,18 +17,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.course.challengeme.data.Challenge
-import com.course.challengeme.data.ChallengeRepo
-import com.course.challengeme.data.UserRepo
-import com.course.challengeme.data.buildLeaderboardEntries
+import com.course.challengeme.data.models.Challenge
+import com.course.challengeme.data.repos.ChallengeRepo
+import com.course.challengeme.data.repos.UserRepo
+import com.course.challengeme.data.models.buildLeaderboardEntries
 import com.course.challengeme.navigations.Navigation
 import com.course.challengeme.ui.components.ChallengeCard
 import com.course.challengeme.ui.components.EmptyChallengesState
 import com.course.challengeme.ui.components.MemberAvatar
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
-import com.course.challengeme.ui.theme.ButtonDark
-import com.course.challengeme.ui.theme.BlueLauncherBg
+import com.course.challengeme.ui.theme.Maroon
+import com.course.challengeme.ui.theme.MyBlue
 import com.course.challengeme.ui.theme.ChallengeBgMauve
 import com.course.challengeme.ui.theme.ChallengeBgRed
 import com.course.challengeme.ui.theme.ChallengeBgTan
@@ -92,7 +92,7 @@ fun HomePageScreen(navController: NavController) {
                 title = {
                     Text(
                         "Hi, $myName!",
-                        color = BlueLauncherBg,
+                        color = MyBlue,
                         fontWeight = FontWeight.Bold,
                         fontSize = 38.sp
                     )
@@ -118,7 +118,7 @@ fun HomePageScreen(navController: NavController) {
                 TextButton(
                     onClick = { navController.navigate(Navigation.CreateChallenge.route) },
                     colors = ButtonDefaults.textButtonColors(
-                        containerColor = BlueLauncherBg,
+                        containerColor = MyBlue,
                         contentColor = Color.White
                     ),
                     shape = RoundedCornerShape(24.dp),
@@ -132,7 +132,7 @@ fun HomePageScreen(navController: NavController) {
                 TextButton(
                     onClick = { navController.navigate(Navigation.JoinChallenge.route) },
                     colors = ButtonDefaults.textButtonColors(
-                        containerColor = BlueLauncherBg,
+                        containerColor = MyBlue,
                         contentColor = Color.White
                     ),
                     shape = RoundedCornerShape(24.dp),
@@ -164,7 +164,7 @@ fun HomePageScreen(navController: NavController) {
                 contentAlignment = Alignment.Center
             ) {
                 when {
-                    isLoading -> CircularProgressIndicator(color = ButtonDark)
+                    isLoading -> CircularProgressIndicator(color = Maroon)
                     errorMessage != null -> Text(
                         text = errorMessage ?: "",
                         color = MaterialTheme.colorScheme.error

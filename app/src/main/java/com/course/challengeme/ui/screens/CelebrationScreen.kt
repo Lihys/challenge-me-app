@@ -29,7 +29,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.course.challengeme.R
 import com.course.challengeme.ui.theme.AppText
-import com.course.challengeme.ui.theme.ButtonDark
+import com.course.challengeme.ui.theme.Maroon
 
 /**
  * Shown in place of the normal ChallengePage content once a challenge's due
@@ -77,7 +77,7 @@ fun CelebrationScreen(
             )
             Spacer(modifier = Modifier.height(32.dp))
             TextButton(onClick = onSeePastCheckIns) {
-                Text("See past check-ins", color = ButtonDark, fontWeight = FontWeight.SemiBold)
+                Text("See past check-ins", color = Maroon, fontWeight = FontWeight.SemiBold)
             }
         }
     }

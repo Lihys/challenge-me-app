@@ -17,17 +17,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.course.challengeme.data.ChallengeRepo
-import com.course.challengeme.data.LeaderboardEntry
-import com.course.challengeme.data.LeaderboardMode
-import com.course.challengeme.data.ProofRepo
-import com.course.challengeme.data.UserRepo
-import com.course.challengeme.data.buildLeaderboardEntries
+import com.course.challengeme.data.repos.ChallengeRepo
+import com.course.challengeme.data.models.LeaderboardEntry
+import com.course.challengeme.data.models.LeaderboardMode
+import com.course.challengeme.data.repos.ProofRepo
+import com.course.challengeme.data.repos.UserRepo
+import com.course.challengeme.data.models.buildLeaderboardEntries
 import com.course.challengeme.ui.components.LeaderboardPodium
 import com.course.challengeme.ui.components.LeaderboardToggle
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
-import com.course.challengeme.ui.theme.BlueLauncherBg
+import com.course.challengeme.ui.theme.MyBlue
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -90,7 +90,7 @@ fun LeaderboardPage(navController: NavController, challengeId: String?) {
 
         when {
             isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = BlueLauncherBg)
+                CircularProgressIndicator(color = MyBlue)
             }
             errorMessage != null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(errorMessage ?: "", color = MaterialTheme.colorScheme.error)
@@ -118,7 +118,7 @@ fun LeaderboardPage(navController: NavController, challengeId: String?) {
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
                             .clip(RoundedCornerShape(20.dp))
-                            .background(BlueLauncherBg)
+                            .background(MyBlue)
                             .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
