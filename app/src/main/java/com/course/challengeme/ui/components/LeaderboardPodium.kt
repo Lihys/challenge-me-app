@@ -60,7 +60,7 @@ private fun PodiumSpot(entry: LeaderboardEntry?, barHeight: Dp) {
                 .width(56.dp)
                 .height(barHeight)
                 .clip(RoundedCornerShape(topStart = 14.dp, topEnd = 14.dp))
-                .background(ChallengeBgTan.copy(alpha = 0.5f)),
+                .background(ChallengeBgTan.copy(alpha = 0.9f)),
             contentAlignment = Alignment.Center
         ) {
             Text(

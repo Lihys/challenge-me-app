@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -29,7 +28,6 @@ import com.course.challengeme.ui.components.LeaderboardToggle
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.BlueLauncherBg
-import com.course.challengeme.ui.theme.ChallengeBgTan
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -125,16 +123,7 @@ fun LeaderboardPage(navController: NavController, challengeId: String?) {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier.size(44.dp).clip(CircleShape).background(ChallengeBgTan),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(me.name.firstOrNull()?.uppercase() ?: "?", color = Color.White, fontWeight = FontWeight.Bold)
-                            }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(me.name, color = Color.White, fontWeight = FontWeight.SemiBold)
-                        }
+                        Text(me.name, color = Color.White, fontWeight = FontWeight.SemiBold)
                         Text("Points: ${me.points}", color = Color.White, fontSize = 13.sp)
                         Text("Rank: ${me.rank}", color = Color.White, fontSize = 13.sp)
                     }
