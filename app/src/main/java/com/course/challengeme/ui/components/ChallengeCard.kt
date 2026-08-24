@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.course.challengeme.data.Challenge
@@ -28,22 +30,21 @@ fun ChallengeCard(
             .clickable(onClick = onClick)
             .padding(20.dp)
     ) {
-        Text(
-            text = challenge.title,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
-        )
-        Spacer(modifier = Modifier.height(8.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "${challenge.memberCount} members",
-                fontSize = 13.sp,
-                color = Color.White.copy(alpha = 0.85f)
+                text = challenge.title,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
             )
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "${challenge.myPoints} pts",
                 fontSize = 13.sp,
@@ -51,5 +52,15 @@ fun ChallengeCard(
                 color = Color.White
             )
         }
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = buildString {
+                challenge.myRank?.let { append("you're #$it | ") }
+                append("${challenge.memberCount} members")
+                challenge.endDateLabel?.let { append(" | ends $it") }
+            },
+            fontSize = 12.sp,
+            color = Color.White.copy(alpha = 0.85f)
+        )
     }
 }

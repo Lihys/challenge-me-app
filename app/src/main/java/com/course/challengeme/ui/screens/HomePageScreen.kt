@@ -20,6 +20,7 @@ import androidx.navigation.NavController
 import com.course.challengeme.data.Challenge
 import com.course.challengeme.data.ChallengeRepo
 import com.course.challengeme.data.UserRepo
+import com.course.challengeme.data.buildLeaderboardEntries
 import com.course.challengeme.navigations.Navigation
 import com.course.challengeme.ui.components.ChallengeCard
 import com.course.challengeme.ui.components.MemberAvatar
@@ -31,6 +32,8 @@ import com.course.challengeme.ui.theme.ChallengeBgMauve
 import com.course.challengeme.ui.theme.ChallengeBgRed
 import com.course.challengeme.ui.theme.ChallengeBgTan
 import com.google.firebase.auth.FirebaseAuth
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,12 +59,21 @@ fun HomePageScreen(navController: NavController) {
             challengeRepository.getChallengesForUser(currentUserId)
                 .onSuccess { models ->
                     challenges = models.mapIndexed { index, model ->
+                        val names = userRepository.getUsersByIds(model.memberIds)
+                        val entries = buildLeaderboardEntries(model.memberIds, model.memberPoints, names)
+                        val myRank = entries.find { it.userId == currentUserId }?.rank
+                        val endDateLabel = model.endDate?.toDate()?.let {
+                            SimpleDateFormat("MMM d", Locale.getDefault()).format(it)
+                        }
+
                         Challenge(
                             id = model.id,
                             title = model.title,
                             memberCount = model.memberIds.size,
                             myPoints = (model.memberPoints[currentUserId] ?: 0L).toInt(),
-                            cardColor = cardColors[index % cardColors.size]
+                            cardColor = cardColors[index % cardColors.size],
+                            myRank = myRank,
+                            endDateLabel = endDateLabel
                         )
                     }
                 }
