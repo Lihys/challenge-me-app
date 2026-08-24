@@ -45,6 +45,7 @@ import com.course.challengeme.data.UserRepo
 import com.course.challengeme.data.buildLeaderboardEntries
 import com.course.challengeme.navigations.Navigation
 import com.course.challengeme.ui.components.CelebrationScreen
+import com.course.challengeme.ui.components.ChallengeStatsLine
 import com.course.challengeme.ui.components.CheckIn
 import com.course.challengeme.ui.components.LeaderboardPodium
 import com.course.challengeme.ui.components.LeaderboardToggle
@@ -274,14 +275,11 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
 
                             Spacer(modifier = Modifier.height(4.dp))
 
-                            Text(
-                                text = buildString {
-                                    myRank?.let {
-                                        val label = if (leaderboardMode == LeaderboardMode.TOTAL) "overall" else "this week"
-                                        append("You're #$it $label | ")
-                                    }
-                                    append("${c.memberIds.size} members | ends $dateLabel")
-                                },
+                            ChallengeStatsLine(
+                                myRank = myRank,
+                                rankLabel = if (leaderboardMode == LeaderboardMode.TOTAL) "overall" else "this week",
+                                memberCount = c.memberIds.size,
+                                endDateLabel = dateLabel,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.Black

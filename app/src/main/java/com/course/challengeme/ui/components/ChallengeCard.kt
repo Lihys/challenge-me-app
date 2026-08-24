@@ -53,13 +53,10 @@ fun ChallengeCard(
             )
         }
         Spacer(modifier = Modifier.height(6.dp))
-        Text(
-            text = buildString {
-                challenge.myRank?.let { append("you're #$it | ") }
-                append("${challenge.memberCount} members")
-                challenge.endDateLabel?.let { append(" | ends $it") }
-            },
-            fontSize = 12.sp,
+        ChallengeStatsLine(
+            myRank = challenge.myRank,
+            memberCount = challenge.memberCount,
+            endDateLabel = challenge.endDateLabel,
             color = Color.White.copy(alpha = 0.85f)
         )
     }
