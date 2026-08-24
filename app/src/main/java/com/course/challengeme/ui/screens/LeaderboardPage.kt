@@ -28,7 +28,7 @@ import com.course.challengeme.ui.components.LeaderboardPodium
 import com.course.challengeme.ui.components.LeaderboardToggle
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
-import com.course.challengeme.ui.theme.ButtonDark
+import com.course.challengeme.ui.theme.BlueLauncherBg
 import com.course.challengeme.ui.theme.ChallengeBgTan
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.async
@@ -92,7 +92,7 @@ fun LeaderboardPage(navController: NavController, challengeId: String?) {
 
         when {
             isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = ButtonDark)
+                CircularProgressIndicator(color = BlueLauncherBg)
             }
             errorMessage != null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(errorMessage ?: "", color = MaterialTheme.colorScheme.error)
@@ -120,7 +120,7 @@ fun LeaderboardPage(navController: NavController, challengeId: String?) {
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
                             .clip(RoundedCornerShape(20.dp))
-                            .background(ButtonDark)
+                            .background(BlueLauncherBg)
                             .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
