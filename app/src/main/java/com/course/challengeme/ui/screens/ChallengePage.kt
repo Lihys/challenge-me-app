@@ -272,13 +272,28 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                                 }
                             }
 
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            Text(
+                                text = buildString {
+                                    myRank?.let {
+                                        val label = if (leaderboardMode == LeaderboardMode.TOTAL) "overall" else "this week"
+                                        append("You're #$it $label | ")
+                                    }
+                                    append("${c.memberIds.size} members | ends $dateLabel")
+                                },
+                                fontSize = 12.sp,
+                                color = AppText.copy(alpha = 0.6f)
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.Top
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     c.description?.takeIf { it.isNotBlank() }?.let { desc ->
-                                        Spacer(modifier = Modifier.height(4.dp))
                                         Text(
                                             text = desc,
                                             fontSize = 13.sp,
@@ -335,20 +350,6 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                                     }
                                 }
                             }
-                            //-----
-                            Spacer(modifier = Modifier.height(4.dp))
-
-                            Text(
-                                text = buildString {
-                                    myRank?.let {
-                                        val label = if (leaderboardMode == LeaderboardMode.TOTAL) "overall" else "this week"
-                                        append("You're #$it $label | ")
-                                    }
-                                    append("${c.memberIds.size} members | ends $dateLabel")
-                                },
-                                fontSize = 12.sp,
-                                color = AppText.copy(alpha = 0.6f)
-                            )
 
                             Spacer(modifier = Modifier.height(20.dp))
                             Text("Check-ins", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = AppText)
