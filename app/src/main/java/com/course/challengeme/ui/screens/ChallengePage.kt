@@ -519,6 +519,7 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                                     }
                                 },
                                 enabled = !isSubmitting,
+                                colors = ButtonDefaults.buttonColors(containerColor = BlueLauncherBg),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(if (isSubmitting) "Posting..." else "Post update")
