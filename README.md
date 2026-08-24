@@ -48,7 +48,7 @@ The files are separated to these categories:
 - **Daily check ins with proof** — you can prove you completed the challenge by sharing a photo and/or a GPS location
 - **Points system** — you get points for checking in, and more points for photo proof, or GPS proof. ALSO a **team bonus** when two or more members checked in, on the same day.
 - **Leaderboard** — toggle between "This Week" and "Total" points, computed from Firestore data including team bonuses
-- **GPS location appears with a readable names** — GPS coordinates converted to a readable location name on-device, which you can also tap to open the Maps app on your phone.
+- **GPS location appears with a readable names** — GPS coordinates converted to a readable location name, which you can also tap to open the Maps app on your phone.
 - **Win counter** — when a challenge ends, a winner is decided and recorded. ,this also shows on the user's profile stats
 
 ---
