@@ -28,6 +28,7 @@ class ProofRepo {
     private val storage = FirebaseStorage.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
+    // companion objects are compile time constants
     companion object {
         const val BASE_POINTS = 10L
         const val PHOTO_BONUS = 5L
@@ -35,6 +36,7 @@ class ProofRepo {
         const val TEAM_BONUS = 5L
     }
 
+    // returning the day's 00:00
     private fun startOfTodayTimestamp(): Timestamp {
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, 0)
@@ -50,10 +52,13 @@ class ProofRepo {
     private suspend fun resolveLocationName(context: Context, lat: Double, lng: Double): String? =
         withContext(Dispatchers.IO) {
             try {
-                if (!Geocoder.isPresent()) return@withContext null
-                @Suppress("DEPRECATION")
+                if (!Geocoder.isPresent())//if not available
+                    return@withContext null
+                @Suppress("DEPRECATION")//to ignore warnings
+
                 val addresses = Geocoder(context, Locale.getDefault()).getFromLocation(lat, lng, 1)
                 val address = addresses?.firstOrNull() ?: return@withContext null
+                // to get location,City name as one string
                 listOfNotNull(
                     address.subLocality ?: address.thoroughfare,
                     address.locality
@@ -63,20 +68,6 @@ class ProofRepo {
             }
         }
 
-    suspend fun hasSubmittedToday(challengeId: String, userId: String): Boolean {
-        return try {
-            val snapshot = db.collection("updates")
-                .whereEqualTo("challengeId", challengeId)
-                .whereEqualTo("userId", userId)
-                .whereGreaterThanOrEqualTo("createdAt", startOfTodayTimestamp())
-                .limit(1)
-                .get()
-                .await()
-            !snapshot.isEmpty
-        } catch (e: Exception) {
-            false
-        }
-    }
 
     suspend fun getRecentUpdates(challengeId: String, limit: Long = 20): Result<List<ProofModel>> {
         return try {
