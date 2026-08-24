@@ -69,6 +69,8 @@ class ProofRepo {
         }
 
 
+    // getting the last 20 proofs. we set 20 as hardcoded default but we can ask for anything
+    // sorted from new to old
     suspend fun getRecentUpdates(challengeId: String, limit: Long = 20): Result<List<ProofModel>> {
         return try {
             val snapshot = db.collection("updates")
@@ -99,11 +101,13 @@ class ProofRepo {
         val userId = auth.currentUser?.uid
             ?: return Result.failure(IllegalStateException("Not logged in"))
 
+        //what did the user submit
         val hasText = !text.isNullOrBlank()
         val hasPhoto = photoUri != null
         val hasLocation = yAxis != null && xAxis != null
 
 
+        // if nothing was provided we don;t accept
         if (!hasText && !hasPhoto && !hasLocation) {
             return Result.failure(IllegalStateException("Add some text, a photo, or your location"))
         }
@@ -111,16 +115,26 @@ class ProofRepo {
         return try {
             coroutineScope {
                 // Photo upload, team-bonus check, and location name
+
+                // uploading the photo and resolving the location together to take less time
+                // deffered allows us to conitinue until called to it then we wait
+
+                // !! tells the compiler it cannot be null ( we checked...)
                 val photoUrlDeferred = async {
                     if (hasPhoto) {
                         val ref = storage.reference.child("update_photos/$challengeId/$userId/${UUID.randomUUID()}.jpg")
                         ref.putFile(photoUri!!).await()
                         ref.downloadUrl.await().toString()
-                    } else null
+                    }
+                    else
+                        null
                 }
 
                 val locationNameDeferred = async {
-                    if (hasLocation) resolveLocationName(context, yAxis!!, xAxis!!) else null
+                    if (hasLocation)
+                        resolveLocationName(context, yAxis!!, xAxis!!)
+                    else
+                        null
                 }
 
                 val photoUrl = photoUrlDeferred.await()
@@ -128,17 +142,27 @@ class ProofRepo {
 
                 var points = BASE_POINTS
 
-
-                if (hasPhoto) points += PHOTO_BONUS
-                if (hasLocation) points += LOCATION_BONUS
+                if (hasPhoto)
+                    points += PHOTO_BONUS
+                if (hasLocation)
+                    points += LOCATION_BONUS
 
                 val update = ProofModel(
                     challengeId = challengeId,
                     userId = userId,
                     type = listOfNotNull(
-                        if (hasText) "text" else null,
-                        if (hasPhoto) "photo" else null,
-                        if (hasLocation) "location" else null
+                        if (hasText)
+                            "text"
+                        else
+                            null,
+                        if (hasPhoto)
+                            "photo"
+                        else
+                            null,
+                        if (hasLocation)
+                            "location"
+                        else
+                            null
                     ).joinToString(","),
                     textContent = text,
                     photoUrl = photoUrl,
@@ -150,6 +174,7 @@ class ProofRepo {
                 )
 
                 // Creating the proof document and updating points
+                // it's async / concurrency
                 val addDeferred = async { db.collection("updates").add(update).await() }
                 val pointsUpdateDeferred = async {
                     db.collection("challenges").document(challengeId)
@@ -169,8 +194,10 @@ class ProofRepo {
         }
     }
 
+
     suspend fun getWeeklyLeaderboard(challengeId: String): Result<List<Pair<String, Long>>> {
         return try {
+            // current time - 7 days
             val sevenDaysAgo = Timestamp(Date(System.currentTimeMillis() - 7L * 24 * 60 * 60 * 1000))
 
             val updatesSnapshot = db.collection("updates")
@@ -179,9 +206,13 @@ class ProofRepo {
                 .get()
                 .await()
             val updates = updatesSnapshot.documents.mapNotNull { it.toObject(ProofModel::class.java) }
+            // we group by the user, ao we basically sum up the points
+            //_ means we only need the values
             val totals = updates.groupBy { it.userId }
                 .mapValues { (_, ups) -> ups.sumOf { it.pointsAwarded } }
-                .toMutableMap()
+                .toMutableMap()//mutable bc totals[memberid] modifies it
+
+            // adding team bonuses to the leaderboard
 
             val bonusSnapshot = db.collection("challenges").document(challengeId)
                 .collection("dailyBonuses")
