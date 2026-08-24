@@ -1,6 +1,7 @@
 package com.course.challengeme.data.models
 import androidx.compose.ui.graphics.Color
 
+//this is for the ui
 data class Challenge(
     val id: String,
     val title: String,

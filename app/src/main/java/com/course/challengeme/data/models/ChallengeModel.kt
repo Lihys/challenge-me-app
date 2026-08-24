@@ -2,6 +2,7 @@ package com.course.challengeme.data.models
 
 import com.google.firebase.Timestamp
 
+// fits our firestore data!
 data class ChallengeModel(
     val id: String = "",
     val title: String = "",
