@@ -23,6 +23,7 @@ import com.course.challengeme.data.UserRepo
 import com.course.challengeme.data.buildLeaderboardEntries
 import com.course.challengeme.navigations.Navigation
 import com.course.challengeme.ui.components.ChallengeCard
+import com.course.challengeme.ui.components.EmptyChallengesState
 import com.course.challengeme.ui.components.MemberAvatar
 import com.course.challengeme.ui.theme.AppBackground
 import com.course.challengeme.ui.theme.AppText
@@ -168,11 +169,8 @@ fun HomePageScreen(navController: NavController) {
                         text = errorMessage ?: "",
                         color = MaterialTheme.colorScheme.error
                     )
-                    challenges.isEmpty() -> Text(
-                        text = "No challenges yet. Create one or join with a code!",
-                        color = AppText.copy(alpha = 0.6f),
-                        fontSize = 15.sp
-                    )
+                    challenges.isEmpty() ->
+                        EmptyChallengesState(modifier = Modifier.fillMaxWidth())
                     else -> LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
