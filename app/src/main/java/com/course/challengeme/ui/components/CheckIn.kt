@@ -62,36 +62,36 @@ fun CheckIn(
     } ?: ""
 
     Column(modifier = modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(ChallengeBgTan.copy(alpha = 0.18f))
+                .padding(12.dp)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                MemberAvatar(name = memberName, photoUrl = avatarUrl, size = 32.dp)
-                Spacer(modifier = Modifier.width(8.dp))
-                Column {
-                    Text(memberName, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = AppText)
-                    Text(timeLabel, fontSize = 12.sp, color = AppText.copy(alpha = 0.5f))
-                }
-            }
-            Text(
-                "+${update.pointsAwarded}",
-                fontWeight = FontWeight.Bold,
-                fontSize = 15.sp,
-                color = ButtonDark
-            )
-        }
-
-        update.textContent?.let { comment ->
-            Spacer(modifier = Modifier.height(8.dp))
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(ChallengeBgTan.copy(alpha = 0.18f))
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
             ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    MemberAvatar(name = memberName, photoUrl = avatarUrl, size = 32.dp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column {
+                        Text(memberName, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = AppText)
+                        Text(timeLabel, fontSize = 12.sp, color = AppText.copy(alpha = 0.5f))
+                    }
+                }
+                Text(
+                    "+${update.pointsAwarded}",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    color = ButtonDark
+                )
+            }
+
+            update.textContent?.let { comment ->
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "\u201C$comment\u201D",
                     fontSize = 14.sp,
@@ -99,46 +99,44 @@ fun CheckIn(
                     color = AppText.copy(alpha = 0.85f)
                 )
             }
-        }
 
-        if (update.photoUrl != null || (update.y != null && update.x != null)) {
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                update.photoUrl?.let { url ->
-                    Spacer(modifier = Modifier.height(8.dp))
-                    var expanded by remember { mutableStateOf(false) }
-                    AsyncImage(
-                        model = url,
-                        contentDescription = "Check-in photo",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(if (expanded) 260.dp else 140.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable { expanded = !expanded }
-                    )
-                }
+            if (update.photoUrl != null || (update.y != null && update.x != null)) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    update.photoUrl?.let { url ->
+                        var expanded by remember { mutableStateOf(false) }
+                        AsyncImage(
+                            model = url,
+                            contentDescription = "Check-in photo",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(if (expanded) 260.dp else 140.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable { expanded = !expanded }
+                        )
+                    }
 
-                if (update.y != null && update.x != null) {
-                    Spacer(modifier = Modifier.height(6.dp))
-                    val lat = update.y
-                    val lng = update.x
-                    val displayName = update.locationName ?: "Location shared"
+                    if (update.y != null && update.x != null) {
+                        val lat = update.y
+                        val lng = update.x
+                        val displayName = update.locationName ?: "Location shared"
 
-                    AssistChip(
-                        onClick = { openInMaps(context, lat, lng, displayName) },
-                        label = {
-                            Text(
-                                displayName,
-                                fontSize = 11.sp,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        },
-                        leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(14.dp)) },
-                        colors = AssistChipDefaults.assistChipColors(containerColor = AppBackground),
-                        modifier = Modifier.widthIn(max = 170.dp)
-                    )
+                        AssistChip(
+                            onClick = { openInMaps(context, lat, lng, displayName) },
+                            label = {
+                                Text(
+                                    displayName,
+                                    fontSize = 11.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            },
+                            leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(14.dp)) },
+                            colors = AssistChipDefaults.assistChipColors(containerColor = AppBackground),
+                            modifier = Modifier.widthIn(max = 170.dp)
+                        )
+                    }
                 }
             }
         }
