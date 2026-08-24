@@ -283,7 +283,8 @@ fun ChallengePage(navController: NavController, challengeId: String?) {
                                     append("${c.memberIds.size} members | ends $dateLabel")
                                 },
                                 fontSize = 12.sp,
-                                color = AppText.copy(alpha = 0.6f)
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
                             )
 
                             Spacer(modifier = Modifier.height(12.dp))
