@@ -32,10 +32,7 @@ import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.Maroon
 
 /**
- * Shown in place of the normal ChallengePage content once a challenge's due
- * date has passed. Reads a Lottie animation from res/raw/winner_trophy.json —
- * drop your downloaded animation file there (e.g. from lottiefiles.com) using
- * that exact filename, or update R.raw.winner_trophy below to match yours.
+ * When challenge is ended, we show who won
  */
 @Composable
 fun CelebrationScreen(

@@ -37,7 +37,7 @@ fun RegisterScreen(navController: NavController) {
     val userRepository = remember { UserRepo() }
     val coroutineScope = rememberCoroutineScope()
 
-    val userRepo = remember { UserRepo() }
+    //val userRepo = remember { UserRepo() }
 
     fun goHomeAndClearBackStack() {
         navController.navigate(Navigation.Home.route) {

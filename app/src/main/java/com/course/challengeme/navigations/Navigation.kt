@@ -1,5 +1,7 @@
 package com.course.challengeme.navigations
 
+// sealed means we have set of subclasses here
+//object means we don't use ()
 sealed class Navigation(val route: String) {
     object Launch : Navigation("launch")
     object Login : Navigation("login")
@@ -8,6 +10,8 @@ sealed class Navigation(val route: String) {
     object MyAccount : Navigation("my_account")
     object CreateChallenge : Navigation("create_challenge")
     object JoinChallenge : Navigation("join_challenge")
+
+    //for specific ids:
     object ChallengePage : Navigation("challenge/{challengeId}") {
         fun createRoute(challengeId: String) = "challenge/$challengeId"
     }

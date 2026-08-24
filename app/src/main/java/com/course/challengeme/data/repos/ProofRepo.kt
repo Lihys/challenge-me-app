@@ -195,6 +195,7 @@ class ProofRepo {
     }
 
 
+    // we convert to list of pairs: name&points
     suspend fun getWeeklyLeaderboard(challengeId: String): Result<List<Pair<String, Long>>> {
         return try {
             // current time - 7 days

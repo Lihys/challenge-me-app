@@ -50,7 +50,6 @@ fun LogInScreen(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Changed color from AppText to ButtonDark (Maroon)
         Text("Welcome back!", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Maroon)
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -99,7 +98,6 @@ fun LogInScreen(navController: NavController) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("No account? ", color = AppText.copy(alpha = 0.7f), fontSize = 14.sp)
             TextButton(onClick = { navController.navigate(Navigation.Register.route) }) {
-                // Kept as ButtonDark to match the title
                 Text("Register", color = Maroon, fontWeight = FontWeight.SemiBold)
             }
         }

@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -32,6 +33,10 @@ import com.course.challengeme.ui.theme.AppText
 import com.course.challengeme.ui.theme.MyBlue
 import com.course.challengeme.ui.theme.Maroon
 
+private val TitleMaxFontSize = 28.sp
+private val TitleMinFontSize = 16.sp
+private val TitleFontStep = 2.sp
+
 @Composable
 fun ChallengeHeaderSection(
     challenge: ChallengeModel,
@@ -45,6 +50,10 @@ fun ChallengeHeaderSection(
 ) {
     var isDescriptionExpanded by remember { mutableStateOf(false) }
     var isDescriptionCutOff by remember { mutableStateOf(false) }
+
+    // challenge name's size adjusts
+    var titleFontSize by remember(challenge.title) { mutableStateOf(TitleMaxFontSize) }
+    var titleReadyToDraw by remember(challenge.title) { mutableStateOf(false) }
 
     Column(modifier = modifier) {
         LeaderboardPodium(topThree = leaderboardEntries.take(3))
@@ -62,12 +71,27 @@ fun ChallengeHeaderSection(
         ) {
             Text(
                 challenge.title,
-                fontSize = 28.sp,
+                fontSize = titleFontSize,
                 fontWeight = FontWeight.Bold,
                 color = MyBlue,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
+                overflow = TextOverflow.Clip,
+                softWrap = false,
+                modifier = Modifier
+                    .weight(1f)
+                    .then(
+                        if (!titleReadyToDraw) Modifier.alpha(0f) else Modifier
+                    ),
+                onTextLayout = { result ->
+                    if (result.hasVisualOverflow && titleFontSize.value > TitleMinFontSize.value) {
+                        titleFontSize = maxOf(
+                            TitleMinFontSize.value,
+                            titleFontSize.value - TitleFontStep.value
+                        ).sp
+                    } else {
+                        titleReadyToDraw = true
+                    }
+                }
             )
             Spacer(modifier = Modifier.width(8.dp))
             TextButton(

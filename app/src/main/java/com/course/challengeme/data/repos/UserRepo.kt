@@ -23,10 +23,14 @@ class UserRepo {
             .await()
     }
 
+    // gets id and returns info
     suspend fun getUsersByIds(userIds: List<String>): Map<String, UserSummary> {
-        if (userIds.isEmpty()) return emptyMap()
+        if (userIds.isEmpty())
+            return emptyMap()
+        // we build the result
         val result = mutableMapOf<String, UserSummary>()
         // Firestore supports 10 values per send max, so we group for larger numbers
+        //so it takes a large list into group of 10
         userIds.chunked(10).forEach { chunk ->
             val snapshot = db.collection("users")
                 .whereIn(FieldPath.documentId(), chunk)
